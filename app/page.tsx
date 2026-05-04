@@ -1,6 +1,25 @@
 import Link from "next/link";
+import { db } from '@/db';
+import { usuarios, perfisMentores } from '@/db/schema';
+import { eq } from 'drizzle-orm';
 
-export default function Home() {
+// Força o Next.js a sempre renderizar a página dinamicamente para mostrar novos cadastros instantaneamente
+export const dynamic = 'force-dynamic';
+
+export default async function Home() {
+  // Buscar mentores fazendo JOIN entre as tabelas usuarios e perfis_mentores
+  const mentores = await db.select({
+    id: usuarios.id,
+    nome: usuarios.nome,
+    avatarUrl: usuarios.avatarUrl,
+    bio: perfisMentores.bio,
+    especialidades: perfisMentores.especialidades,
+    precoHora: perfisMentores.precoHora,
+  })
+  .from(usuarios)
+  .innerJoin(perfisMentores, eq(usuarios.id, perfisMentores.usuarioId))
+  .where(eq(usuarios.tipoPerfil, 'mentor'));
+
   return (
     <div className="flex flex-col min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans text-zinc-900 dark:text-zinc-50">
       {/* Header */}
@@ -23,7 +42,7 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <main className="flex-1 flex flex-col items-center justify-center text-center px-4 sm:px-6 lg:px-8 mt-16 sm:mt-24">
+      <main className="flex-1 flex flex-col items-center justify-center text-center px-4 sm:px-6 lg:px-8 mt-16 sm:mt-24 w-full max-w-7xl mx-auto">
         <div className="inline-flex items-center rounded-full px-4 py-1.5 text-sm font-semibold text-blue-700 bg-blue-100 dark:bg-blue-500/10 dark:text-blue-400 mb-8 ring-1 ring-inset ring-blue-600/20 transition-all hover:ring-blue-600/40 cursor-default">
           <span className="mr-2">🚀</span> O futuro da sua carreira tech começa aqui
         </div>
@@ -37,37 +56,57 @@ export default function Home() {
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-          <Link href="/mentores" className="flex items-center justify-center px-8 py-4 text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-full transition-all shadow-lg shadow-blue-600/25 hover:shadow-xl hover:shadow-blue-600/40 hover:-translate-y-0.5">
+          <Link href="#mentores" className="flex items-center justify-center px-8 py-4 text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-full transition-all shadow-lg shadow-blue-600/25 hover:shadow-xl hover:shadow-blue-600/40 hover:-translate-y-0.5">
             Encontrar um Mentor
           </Link>
-          <Link href="/ser-mentor" className="flex items-center justify-center px-8 py-4 text-base font-semibold text-zinc-900 dark:text-white bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 rounded-full transition-all">
+          <Link href="/cadastro" className="flex items-center justify-center px-8 py-4 text-base font-semibold text-zinc-900 dark:text-white bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 rounded-full transition-all">
             Quero ser Mentor
           </Link>
         </div>
 
-        {/* Features Preview */}
-        <div className="mt-24 grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-5xl w-full pt-12 border-t border-zinc-200 dark:border-zinc-800/50 text-left">
-          <div className="flex flex-col gap-3 group">
-            <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 mb-2 transition-transform group-hover:scale-110">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            </div>
-            <h3 className="font-semibold text-lg text-zinc-900 dark:text-zinc-100">Mentoria 1:1</h3>
-            <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">Sessões personalizadas por vídeo focadas nos seus objetivos, carreira e desafios atuais do dia a dia.</p>
+        {/* Vitrine de Mentores Dinâmica */}
+        <div id="mentores" className="mt-32 w-full pt-12 border-t border-zinc-200 dark:border-zinc-800/50">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold tracking-tight mb-4">Nossos Mentores</h2>
+            <p className="text-zinc-600 dark:text-zinc-400">Escolha o especialista perfeito para guiar o seu próximo passo na carreira.</p>
           </div>
-          <div className="flex flex-col gap-3 group">
-            <div className="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 mb-2 transition-transform group-hover:scale-110">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-            </div>
-            <h3 className="font-semibold text-lg text-zinc-900 dark:text-zinc-100">Code Review e Pair</h3>
-            <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">Evolua sua técnica com dicas práticas, pair programming e revisões minuciosas de especialistas.</p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {mentores.map((mentor) => (
+              <div key={mentor.id} className="flex flex-col bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow text-left">
+                <div className="p-6 flex flex-col items-center text-center gap-4 flex-1">
+                  {mentor.avatarUrl && (
+                    <img src={mentor.avatarUrl} alt={`Foto de ${mentor.nome}`} className="w-24 h-24 rounded-full border-4 border-zinc-50 dark:border-zinc-800 shadow-sm object-cover" />
+                  )}
+                  <div>
+                    <h3 className="font-bold text-xl">{mentor.nome}</h3>
+                    <p className="text-blue-600 dark:text-blue-400 font-medium text-sm mt-1">
+                      {mentor.precoHora ? `R$ ${mentor.precoHora} / hora` : 'Valor a combinar'}
+                    </p>
+                  </div>
+                  <p className="text-zinc-600 dark:text-zinc-400 text-sm line-clamp-3">
+                    {mentor.bio}
+                  </p>
+                  <div className="flex flex-wrap gap-2 justify-center mt-auto pt-4">
+                    {mentor.especialidades?.map((esp, i) => (
+                      <span key={i} className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 text-xs rounded-full font-medium text-zinc-700 dark:text-zinc-300">
+                        {esp}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="p-4 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50">
+                  <button className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors">
+                    Agendar Mentoria
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="flex flex-col gap-3 group">
-            <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-2 transition-transform group-hover:scale-110">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
-            </div>
-            <h3 className="font-semibold text-lg text-zinc-900 dark:text-zinc-100">Carreira e Soft Skills</h3>
-            <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">Preparação para entrevistas técnicas, negociação salarial e desenvolvimento de liderança.</p>
-          </div>
+          
+          {mentores.length === 0 && (
+             <p className="text-center text-zinc-500 py-10">Nenhum mentor encontrado. Rode a rota de seed ou cadastre um novo!</p>
+          )}
         </div>
       </main>
       
