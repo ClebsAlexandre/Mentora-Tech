@@ -1,24 +1,47 @@
-# 🚀 Mentora-Tech - Sistema de Mentoria Profissional
+# 🚀 Mentora-Tech - Simulador de Entrevistas Técnicas
 
-Bem-vindos ao projeto **Mentora-Tech**! Este é o nosso MVP, focado em conectar mentores e alunos. O projeto utiliza **Next.js**, **Drizzle ORM**, **Supabase** e o agente de IA **Antigravity**.
+Bem-vindos ao projeto **Mentora-Tech**! Mais do que uma plataforma de encontros, somos um **Simulador de Entrevistas Técnicas** focado em preparar profissionais de TI para o mercado de trabalho. 
+
+Alunos podem agendar simulações com Tech Leads, realizar sabatinas técnicas e receber um "Relatório de Desempenho" completo com o veredito (Contrataria ou Não Contrataria).
 
 ---
 
-## 👥 Divisão de Funções (Sprints Iniciais)
+## 💻 Stack Tecnológica
+* **Frontend:** Next.js (App Router), React 19, Tailwind CSS v4
+* **Backend:** Next.js Server Actions
+* **Banco de Dados:** PostgreSQL (nuvem via Supabase)
+* **ORM:** Drizzle ORM (tipagem e migrações SQL)
+* **Integrações:** DiceBear API (geração dinâmica de avatares)
 
-Para mantermos o código organizado e evitarmos conflitos, trabalharemos com as seguintes frentes:
+---
+
+## 📁 Arquitetura do Projeto
+
+Para suportar o crescimento da plataforma, adotamos a seguinte divisão de pastas (Separation of Concerns):
+
+* `app/`: Apenas as páginas, layouts e rotas de API (Frontend).
+* `components/`: Componentes visuais isolados (`/ui`, `/layout`, `/forms`).
+* `actions/`: Lógica pesada de servidor e banco de dados (Backend).
+* `lib/`: Utilitários gerais do sistema (ex: `utils.ts`).
+* `hooks/`: Hooks customizados do React.
+* `types/`: Interfaces TypeScript para tipagem global.
+* `db/`: Configuração do Supabase e definição do esquema de dados (`schema.ts`).
+
+---
+
+## 👥 Divisão de Funções na Equipe
 
 ### 1. Arquiteto de Dados / DBA (Clebson)
-* **Responsabilidade:** Gerenciar a pasta `db/`, definir esquemas no `schema.ts` e realizar a migração para a nuvem.
+* **Responsabilidade:** Dono da pasta `db/`. Modela o `schema.ts` (que hoje possui 7 tabelas estruturadas, incluindo `agendamentos`, `pagamentos` e `relatorio_entrevista`).
 * **Ação:** Único responsável por rodar comandos de alteração de estrutura (`push`) no Supabase.
 
 ### 2. Desenvolvedores Front-end / UI
-* **Responsabilidade:** Criar a interface visual na pasta `app/` utilizando Tailwind CSS e componentes React.
-* **Ação:** Utilizar o Antigravity Agent para transformar protótipos em código funcional e garantir a responsividade.
+* **Responsabilidade:** Trabalhar dentro de `app/` e `components/` criando a interface visual com Tailwind CSS.
+* **Ação:** Criar telas bonitas e responsivas sem se preocupar com lógica de banco de dados.
 
 ### 3. Desenvolvedores Full-Stack / Integração
-* **Responsabilidade:** Conectar as telas ao banco de dados.
-* **Ação:** Criar Server Actions e funções de leitura/escrita usando Drizzle para buscar mentores, agendar sessões e salvar avaliações.
+* **Responsabilidade:** Fazer a ponte criando funções na pasta `actions/`.
+* **Ação:** Desenvolver as Server Actions (leitura/escrita usando Drizzle) que o Front-end vai chamar ao clicar em um botão.
 
 ---
 
@@ -28,9 +51,8 @@ Para mantermos o código organizado e evitarmos conflitos, trabalharemos com as 
 * **Node.js** (Versão LTS)
 * **Git**
 * **Yarn** (`npm install -g yarn`)
-* **Antigravity IDE** (Opcional, mas recomendado para usar o Agente de IA)
 
-> **Nota para Computadores do Lab (FICR):** Caso o instalador do Antigravity seja bloqueado por falta de permissão de admin, utilizem o **VS Code** padrão para editar o código e rodem os comandos via terminal.
+> **Nota para Computadores do Lab (FICR):** Usem o **VS Code** padrão para editar o código e rodem os comandos via terminal interno.
 
 ### 2. Clonando e Instalando
 No terminal, rodem os seguintes comandos:
@@ -46,7 +68,7 @@ No terminal, rodem os seguintes comandos:
 Como o arquivo de configuração é ignorado por segurança, cada um deve criar o seu manualmente:
 
 1. Na raiz do projeto, crie um novo arquivo chamado `.env.local`.
-2. Cole a seguinte linha dentro dele (solicite a **Senha Real** a quem controla o banco de dados):
+2. Cole a seguinte linha dentro dele (solicite a **Senha Real** ao Clebson via chat privado):
 
     DATABASE_URL="postgresql://postgres:SENHA_REAL_AQUI@db.logxitgjbamrfutgoebb.supabase.co:5432/postgres"
 
@@ -60,9 +82,11 @@ Após a instalação e configuração do `.env.local`, inicie o servidor de dese
 
 O projeto estará disponível em `http://localhost:3000`.
 
+**Dica de Debug:** Caso o Next.js apresente algum travamento inexplicável durante o desenvolvimento, delete a pasta oculta `.next` e rode `yarn dev` novamente para limpar o cache.
+
 ---
 
-## 📖 Regras do Repositório
+## 📖 Dicas do Repositório
 * **Nunca** remova o `.env.local` do `.gitignore`.
-* **Recomendado** crie uma nova branch para suas alterações (`git checkout -b minha-feature`).
+* **Recomendado** crie uma nova branch para suas alterações visuais ou lógicas (`git checkout -b minha-feature`).
 * **Sempre** rode o `yarn install` após dar um `git pull` caso novas bibliotecas tenham sido adicionadas.
