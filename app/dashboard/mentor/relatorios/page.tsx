@@ -13,7 +13,8 @@ import {
   ArrowLeft,
   Star,
   Award,
-  CheckCircle2
+  CheckCircle2,
+  User
 } from "lucide-react";
 
 // Tipagem para simular as sessões que precisam de relatório
@@ -98,6 +99,17 @@ export default function MentorRelatoriosPage() {
               </span>
             )}
           </Link>
+            <Link
+            href="/dashboard/mentor/perfil"
+            className="flex items-center gap-3 rounded-xl text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200 px-4 py-3.5 text-sm font-medium transition-all group"
+          >
+            <User
+              size={20}
+              className="group-hover:text-blue-500 transition-colors"
+            />
+            Meu Perfil
+          </Link>
+
         </nav>
 
         <div className="p-6 border-t border-zinc-800/50">

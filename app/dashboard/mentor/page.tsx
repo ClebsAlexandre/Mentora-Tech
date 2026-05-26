@@ -3,15 +3,16 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { 
-  LayoutDashboard, 
-  CalendarDays, 
-  FileText, 
-  LogOut, 
-  Bell, 
+import {
+  LayoutDashboard,
+  CalendarDays,
+  FileText,
+  LogOut,
+  Bell,
   ChevronRight,
   Clock,
-  Video
+  Video,
+  User,
 } from "lucide-react";
 
 export default function MentorDashboard() {
@@ -31,7 +32,7 @@ export default function MentorDashboard() {
       vagaAlvo: "Desenvolvedor Frontend - React",
       hora: "14:00 - 15:00",
       data: "2026-05-26",
-      cor: "bg-blue-500"
+      cor: "bg-blue-500",
     },
     {
       id: "2",
@@ -39,17 +40,16 @@ export default function MentorDashboard() {
       vagaAlvo: "Full Stack (Node.js & Next.js)",
       hora: "16:30 - 17:30",
       data: "2026-05-26",
-      cor: "bg-indigo-500"
+      cor: "bg-indigo-500",
     },
   ];
 
   const agendamentosFiltrados = agendamentos.filter(
-    (ag) => ag.data === dataFiltro
+    (ag) => ag.data === dataFiltro,
   );
 
   return (
     <div className="flex min-h-screen bg-[#050505] text-zinc-100 font-sans">
-      
       {/* Sidebar Lateral */}
       <aside className="w-72 border-r border-zinc-800/50 bg-[#0a0a0a] flex flex-col sticky top-0 h-screen hidden md:flex">
         <div className="p-8">
@@ -65,17 +65,32 @@ export default function MentorDashboard() {
 
         {/* NAVEGAÇÃO LINKADA */}
         <nav className="flex-1 px-4 space-y-2">
-          <Link href="/dashboard/mentor" className="flex items-center gap-3 rounded-xl bg-blue-600/10 text-blue-500 px-4 py-3.5 text-sm font-semibold border border-blue-500/20">
+          <Link
+            href="/dashboard/mentor"
+            className="flex items-center gap-3 rounded-xl bg-blue-600/10 text-blue-500 px-4 py-3.5 text-sm font-semibold border border-blue-500/20"
+          >
             <LayoutDashboard size={20} />
             Visão Geral
           </Link>
-          <Link href="/dashboard/mentor/agenda" className="flex items-center gap-3 rounded-xl text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200 px-4 py-3.5 text-sm font-medium transition-all group">
-            <CalendarDays size={20} className="group-hover:text-blue-500 transition-colors" />
+          <Link
+            href="/dashboard/mentor/agenda"
+            className="flex items-center gap-3 rounded-xl text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200 px-4 py-3.5 text-sm font-medium transition-all group"
+          >
+            <CalendarDays
+              size={20}
+              className="group-hover:text-blue-500 transition-colors"
+            />
             Minha Agenda
           </Link>
-          <Link href="/dashboard/mentor/relatorios" className="flex items-center justify-between rounded-xl text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200 px-4 py-3.5 text-sm font-medium transition-all group">
+          <Link
+            href="/dashboard/mentor/relatorios"
+            className="flex items-center justify-between rounded-xl text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200 px-4 py-3.5 text-sm font-medium transition-all group"
+          >
             <div className="flex items-center gap-3">
-              <FileText size={20} className="group-hover:text-blue-500 transition-colors" />
+              <FileText
+                size={20}
+                className="group-hover:text-blue-500 transition-colors"
+              />
               Relatórios Pendentes
             </div>
             {stats.relatoriosPendentes > 0 && (
@@ -84,10 +99,24 @@ export default function MentorDashboard() {
               </span>
             )}
           </Link>
+
+          <Link
+            href="/dashboard/mentor/perfil"
+            className="flex items-center gap-3 rounded-xl text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200 px-4 py-3.5 text-sm font-medium transition-all group"
+          >
+            <User
+              size={20}
+              className="group-hover:text-blue-500 transition-colors"
+            />
+            Meu Perfil
+          </Link>
         </nav>
 
         <div className="p-6 border-t border-zinc-800/50">
-          <Link href="/login" className="flex items-center gap-3 w-full rounded-xl text-zinc-500 hover:text-red-400 hover:bg-red-400/5 px-4 py-3 text-sm font-medium transition-all">
+          <Link
+            href="/login"
+            className="flex items-center gap-3 w-full rounded-xl text-zinc-500 hover:text-red-400 hover:bg-red-400/5 px-4 py-3 text-sm font-medium transition-all"
+          >
             <LogOut size={20} />
             Sair
           </Link>
@@ -100,7 +129,9 @@ export default function MentorDashboard() {
         <header className="flex items-center justify-between px-10 py-6 border-b border-zinc-800/50 bg-[#050505]/80 backdrop-blur-md sticky top-0 z-20">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Olá, Leonardo</h1>
-            <p className="text-zinc-500 text-sm mt-0.5">Residência Tech e Mentorias em dia. Aqui está o seu resumo.</p>
+            <p className="text-zinc-500 text-sm mt-0.5">
+              Residência Tech e Mentorias em dia. Aqui está o seu resumo.
+            </p>
           </div>
           <div className="flex items-center gap-6">
             <button className="relative text-zinc-400 hover:text-white transition-colors">
@@ -108,10 +139,10 @@ export default function MentorDashboard() {
               <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#050505]"></span>
             </button>
             <div className="flex items-center gap-3 p-1 pr-4 rounded-full bg-zinc-900/50 border border-zinc-800/50">
-              <img 
-                src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?auto=format&fit=crop&w=100&h=100&q=80" 
-                className="w-8 h-8 rounded-full object-cover border border-zinc-700" 
-                alt="Me" 
+              <img
+                src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?auto=format&fit=crop&w=100&h=100&q=80"
+                className="w-8 h-8 rounded-full object-cover border border-zinc-700"
+                alt="Me"
               />
               <ChevronRight size={14} className="text-zinc-600" />
             </div>
@@ -119,36 +150,58 @@ export default function MentorDashboard() {
         </header>
 
         <div className="p-10 space-y-10 max-w-[1400px] mx-auto w-full">
-          
           {/* Grid de Estatísticas */}
           <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-2xl bg-[#0a0a0a] border border-zinc-800/50 shadow-sm transition-all">
+            <motion.div
+              whileHover={{ y: -4 }}
+              className="p-6 rounded-2xl bg-[#0a0a0a] border border-zinc-800/50 shadow-sm transition-all"
+            >
               <p className="text-zinc-500 text-sm font-medium">Ganhos do Mês</p>
               <div className="flex items-baseline gap-2 mt-2">
-                <h3 className="text-3xl font-bold">R$ {stats.ganhosMes.toFixed(2).replace('.', ',')}</h3>
+                <h3 className="text-3xl font-bold">
+                  R$ {stats.ganhosMes.toFixed(2).replace(".", ",")}
+                </h3>
                 <span className="text-emerald-500 text-xs font-bold flex items-center">
-                   <span className="mr-0.5">↗</span> +15%
+                  <span className="mr-0.5">↗</span> +15%
                 </span>
               </div>
-              <p className="text-[11px] text-zinc-600 mt-2 uppercase tracking-wider font-bold">Em relação ao mês passado</p>
+              <p className="text-[11px] text-zinc-600 mt-2 uppercase tracking-wider font-bold">
+                Em relação ao mês passado
+              </p>
             </motion.div>
 
-            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-2xl bg-[#0a0a0a] border border-zinc-800/50 shadow-sm transition-all">
-              <p className="text-zinc-500 text-sm font-medium">Avaliação Média</p>
+            <motion.div
+              whileHover={{ y: -4 }}
+              className="p-6 rounded-2xl bg-[#0a0a0a] border border-zinc-800/50 shadow-sm transition-all"
+            >
+              <p className="text-zinc-500 text-sm font-medium">
+                Avaliação Média
+              </p>
               <div className="flex items-baseline gap-2 mt-2">
                 <h3 className="text-3xl font-bold">{stats.avaliacoes}</h3>
                 <span className="text-yellow-500 text-sm">★</span>
               </div>
-              <p className="text-[11px] text-zinc-600 mt-2 uppercase tracking-wider font-bold">Baseado em {stats.sessoesRealizadas} sessões</p>
+              <p className="text-[11px] text-zinc-600 mt-2 uppercase tracking-wider font-bold">
+                Baseado em {stats.sessoesRealizadas} sessões
+              </p>
             </motion.div>
 
-            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-2xl bg-[#0a0a0a] border border-red-500/20 shadow-[0_0_30px_rgba(239,68,68,0.05)] transition-all relative overflow-hidden group">
+            <motion.div
+              whileHover={{ y: -4 }}
+              className="p-6 rounded-2xl bg-[#0a0a0a] border border-red-500/20 shadow-[0_0_30px_rgba(239,68,68,0.05)] transition-all relative overflow-hidden group"
+            >
               <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
                 <FileText size={40} className="text-red-500" />
               </div>
-              <p className="text-red-500/80 text-sm font-bold">Ação Necessária</p>
-              <h3 className="text-4xl font-black mt-2">{stats.relatoriosPendentes}</h3>
-              <p className="text-[11px] text-zinc-600 mt-2 uppercase tracking-wider font-bold">Relatórios aguardando envio</p>
+              <p className="text-red-500/80 text-sm font-bold">
+                Ação Necessária
+              </p>
+              <h3 className="text-4xl font-black mt-2">
+                {stats.relatoriosPendentes}
+              </h3>
+              <p className="text-[11px] text-zinc-600 mt-2 uppercase tracking-wider font-bold">
+                Relatórios aguardando envio
+              </p>
             </motion.div>
           </section>
 
@@ -157,9 +210,11 @@ export default function MentorDashboard() {
             <div className="p-8 border-b border-zinc-800/50 flex flex-col sm:flex-row justify-between items-center gap-4 bg-[#0c0c0c]">
               <h2 className="text-xl font-bold">Sua Grade de Sessões</h2>
               <div className="flex items-center gap-4 bg-zinc-900/80 p-1.5 rounded-2xl border border-zinc-800">
-                <span className="pl-3 text-xs font-bold text-zinc-500 uppercase tracking-widest">Filtrar por data:</span>
-                <input 
-                  type="date" 
+                <span className="pl-3 text-xs font-bold text-zinc-500 uppercase tracking-widest">
+                  Filtrar por data:
+                </span>
+                <input
+                  type="date"
                   value={dataFiltro}
                   onChange={(e) => setDataFiltro(e.target.value)}
                   className="bg-zinc-800 text-sm rounded-xl px-4 py-2 border border-zinc-700 outline-none focus:ring-2 ring-blue-500/20 transition-all [color-scheme:dark]"
@@ -170,19 +225,25 @@ export default function MentorDashboard() {
             <div className="divide-y divide-zinc-800/50">
               {agendamentosFiltrados.length > 0 ? (
                 agendamentosFiltrados.map((sessao) => (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    key={sessao.id} 
+                    key={sessao.id}
                     className="p-8 flex flex-col md:flex-row items-center justify-between group hover:bg-white/[0.02] transition-colors"
                   >
                     <div className="flex items-center gap-6">
-                      <div className={`h-14 w-14 rounded-full ${sessao.cor} flex items-center justify-center font-bold text-lg text-white shadow-inner`}>
+                      <div
+                        className={`h-14 w-14 rounded-full ${sessao.cor} flex items-center justify-center font-bold text-lg text-white shadow-inner`}
+                      >
                         {sessao.alunoNome.charAt(0)}
                       </div>
                       <div>
-                        <h4 className="text-lg font-bold group-hover:text-blue-400 transition-colors">{sessao.alunoNome}</h4>
-                        <p className="text-zinc-500 text-sm font-medium">{sessao.vagaAlvo}</p>
+                        <h4 className="text-lg font-bold group-hover:text-blue-400 transition-colors">
+                          {sessao.alunoNome}
+                        </h4>
+                        <p className="text-zinc-500 text-sm font-medium">
+                          {sessao.vagaAlvo}
+                        </p>
                       </div>
                     </div>
 
@@ -192,7 +253,9 @@ export default function MentorDashboard() {
                           <Clock size={16} className="text-zinc-600" />
                           {sessao.hora}
                         </div>
-                        <span className="text-[10px] text-zinc-600 uppercase font-bold tracking-widest mt-1">Horário de Brasília</span>
+                        <span className="text-[10px] text-zinc-600 uppercase font-bold tracking-widest mt-1">
+                          Horário de Brasília
+                        </span>
                       </div>
 
                       <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5 rounded-2xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-blue-600/20">
@@ -205,13 +268,16 @@ export default function MentorDashboard() {
               ) : (
                 <div className="p-12 text-center text-zinc-500 flex flex-col items-center">
                   <CalendarDays size={48} className="text-zinc-700 mb-4" />
-                  <p className="text-lg font-medium">Nenhuma mentoria agendada para este dia.</p>
-                  <p className="text-sm mt-1">Altere o filtro de data acima para buscar outras sessões.</p>
+                  <p className="text-lg font-medium">
+                    Nenhuma mentoria agendada para este dia.
+                  </p>
+                  <p className="text-sm mt-1">
+                    Altere o filtro de data acima para buscar outras sessões.
+                  </p>
                 </div>
               )}
             </div>
           </section>
-
         </div>
       </main>
     </div>
