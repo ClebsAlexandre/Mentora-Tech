@@ -14,9 +14,16 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulação temporária
+    
+    // Simulação temporária de carregamento
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    router.push("/");
+    
+    // Redireciona para o painel correto com base no e-mail digitado
+    if (email.includes("mentor")) {
+      router.push("/dashboard/mentor");
+    } else {
+      router.push("/dashboard/mentorado");
+    }
   };
 
   return (
