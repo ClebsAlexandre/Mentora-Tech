@@ -3,12 +3,20 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { 
+  LayoutDashboard, 
+  CalendarDays, 
+  FileText, 
+  LogOut, 
+  Bell, 
+  ChevronRight,
+  Clock,
+  Video
+} from "lucide-react";
 
 export default function MentorDashboard() {
-  // Simulando a data atual para o filtro de agendamentos
   const [dataFiltro, setDataFiltro] = useState<string>("2026-05-26");
 
-  // Dados simulados do mentor (serão substituídos pelos dados do banco)
   const stats = {
     ganhosMes: 1250.0,
     avaliacoes: 4.9,
@@ -16,185 +24,179 @@ export default function MentorDashboard() {
     relatoriosPendentes: 2,
   };
 
-  // Simulação de agendamentos que respondem ao filtro de data
-  const agendamentosMocados = [
+  const agendamentos = [
     {
       id: "1",
       alunoNome: "Ana Silva",
       vagaAlvo: "Desenvolvedor Frontend - React",
       hora: "14:00 - 15:00",
-      status: "confirmado",
       data: "2026-05-26",
-      salaUrl: "https://meet.google.com/abc-defg-hij",
+      cor: "bg-blue-500"
     },
     {
       id: "2",
       alunoNome: "Carlos Eduardo",
       vagaAlvo: "Full Stack (Node.js & Next.js)",
       hora: "16:30 - 17:30",
-      status: "confirmado",
       data: "2026-05-26",
-      salaUrl: "https://meet.google.com/xyz-uvw-rst",
-    },
-    {
-      id: "3",
-      alunoNome: "Beatriz Lima",
-      vagaAlvo: "Estágio em Engenharia de Software",
-      hora: "10:00 - 11:00",
-      status: "confirmado",
-      data: "2026-05-27", // Dia seguinte
-      salaUrl: "#",
+      cor: "bg-indigo-500"
     },
   ];
 
-  // Filtra os registros com base na data específica selecionada pelo usuário
-  const agendamentosFiltrados = agendamentosMocados.filter(
-    (ag) => ag.data === dataFiltro
-  );
-
   return (
-    <div className="flex min-h-screen bg-[#0a0a0a] text-white font-sans">
+    <div className="flex min-h-screen bg-[#050505] text-zinc-100 font-sans">
+      
       {/* Sidebar Lateral */}
-      <aside className="w-64 border-r border-zinc-800 bg-zinc-950 p-6 hidden md:flex flex-col">
-        <div className="flex items-center gap-2 mb-12">
-          <div className="flex h-8 w-8 items-center justify-center rounded bg-blue-600 font-bold text-white">
-            M
-          </div>
-          <span className="text-xl font-bold tracking-tight">Mentora Tech</span>
+      <aside className="w-72 border-r border-zinc-800/50 bg-[#0a0a0a] flex flex-col sticky top-0 h-screen">
+        <div className="p-8">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 font-bold text-white shadow-[0_0_20px_rgba(37,99,235,0.3)] group-hover:scale-105 transition-transform">
+              M
+            </div>
+            <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-zinc-400">
+              Mentora Tech
+            </span>
+          </Link>
         </div>
 
-        <nav className="flex flex-col gap-2 flex-1">
-          <Link href="/dashboard/mentor" className="flex items-center gap-3 rounded-lg bg-blue-600/10 text-blue-500 px-4 py-3 text-sm font-medium transition-colors">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+        <nav className="flex-1 px-4 space-y-2">
+          <Link href="#" className="flex items-center gap-3 rounded-xl bg-blue-600/10 text-blue-500 px-4 py-3.5 text-sm font-semibold border border-blue-500/20">
+            <LayoutDashboard size={20} />
             Visão Geral
           </Link>
-          <Link href="#" className="flex items-center gap-3 rounded-lg text-zinc-400 hover:bg-zinc-900 hover:text-white px-4 py-3 text-sm font-medium transition-colors">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+          <Link href="#" className="flex items-center gap-3 rounded-xl text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200 px-4 py-3.5 text-sm font-medium transition-all group">
+            <CalendarDays size={20} className="group-hover:text-blue-500 transition-colors" />
             Minha Agenda
           </Link>
-          <Link href="#" className="flex items-center gap-3 rounded-lg text-zinc-400 hover:bg-zinc-900 hover:text-white px-4 py-3 text-sm font-medium transition-colors">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-            Relatórios Pendentes
-            {stats.relatoriosPendentes > 0 && (
-              <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-red-500/20 text-xs text-red-500 font-bold">
-                {stats.relatoriosPendentes}
-              </span>
-            )}
+          <Link href="#" className="flex items-center justify-between rounded-xl text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200 px-4 py-3.5 text-sm font-medium transition-all group">
+            <div className="flex items-center gap-3">
+              <FileText size={20} className="group-hover:text-blue-500 transition-colors" />
+              Relatórios Pendentes
+            </div>
+            <span className="bg-red-500/10 text-red-500 text-[10px] font-bold px-2 py-0.5 rounded-full border border-red-500/20">
+              {stats.relatoriosPendentes}
+            </span>
           </Link>
         </nav>
 
-        <div className="mt-auto pt-6 border-t border-zinc-800">
-          <Link href="#" className="flex items-center gap-3 rounded-lg text-zinc-400 hover:text-white px-4 py-2 text-sm font-medium transition-colors">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+        <div className="p-6 border-t border-zinc-800/50">
+          <button className="flex items-center gap-3 w-full rounded-xl text-zinc-500 hover:text-red-400 hover:bg-red-400/5 px-4 py-3 text-sm font-medium transition-all">
+            <LogOut size={20} />
             Sair
-          </Link>
+          </button>
         </div>
       </aside>
 
-      {/* Conteúdo Principal */}
-      <main className="flex-1 flex flex-col h-screen overflow-y-auto">
-        {/* Header do Dashboard */}
-        <header className="flex items-center justify-between border-b border-zinc-800 bg-zinc-950/50 px-8 py-5 backdrop-blur-sm sticky top-0 z-10">
+      {/* Conteúdo Central */}
+      <main className="flex-1">
+        {/* Top Header */}
+        <header className="flex items-center justify-between px-10 py-6 border-b border-zinc-800/50 bg-[#050505]/80 backdrop-blur-md sticky top-0 z-20">
           <div>
-            <h1 className="text-2xl font-bold">Olá, Leonardo 👋</h1>
-            <p className="text-sm text-zinc-400">Residência Tech e Mentorias em dia. Aqui está o seu resumo.</p>
+            <h1 className="text-2xl font-bold tracking-tight">Olá, Leonardo</h1>
+            <p className="text-zinc-500 text-sm mt-0.5">Residência Tech e Mentorias em dia. Aqui está o seu resumo.</p>
           </div>
-          <div className="flex items-center gap-4">
-            <button className="relative p-2 text-zinc-400 hover:text-white transition-colors">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
-              <span className="absolute top-1 right-2 w-2 h-2 rounded-full bg-red-500"></span>
+          <div className="flex items-center gap-6">
+            <button className="relative text-zinc-400 hover:text-white transition-colors">
+              <Bell size={22} />
+              <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#050505]"></span>
             </button>
-            <div className="w-10 h-10 rounded-full border-2 border-zinc-800 bg-zinc-800 overflow-hidden">
-              <img src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?auto=format&fit=crop&w=100&h=100&q=80" alt="Avatar do Mentor" className="w-full h-full object-cover" />
+            <div className="flex items-center gap-3 p-1 pr-4 rounded-full bg-zinc-900/50 border border-zinc-800/50">
+              <img 
+                src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?auto=format&fit=crop&w=100&h=100&q=80" 
+                className="w-8 h-8 rounded-full object-cover border border-zinc-700" 
+                alt="Me" 
+              />
+              <ChevronRight size={14} className="text-zinc-600" />
             </div>
           </div>
         </header>
 
-        <div className="p-8 max-w-7xl mx-auto w-full">
-          {/* Métricas (Cards) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6">
-              <div className="text-zinc-400 text-sm font-medium mb-2">Ganhos do Mês</div>
-              <div className="text-3xl font-bold text-white">R$ {stats.ganhosMes.toFixed(2).replace('.', ',')}</div>
-              <div className="mt-2 text-xs text-green-400 flex items-center gap-1">
-                <span>↗</span> +15% em relação ao mês passado
+        <div className="p-10 space-y-10 max-w-[1400px] mx-auto">
+          
+          {/* Grid de Estatísticas */}
+          <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-2xl bg-[#0a0a0a] border border-zinc-800/50 shadow-sm transition-all">
+              <p className="text-zinc-500 text-sm font-medium">Ganhos do Mês</p>
+              <div className="flex items-baseline gap-2 mt-2">
+                <h3 className="text-3xl font-bold">R$ {stats.ganhosMes.toFixed(2).replace('.', ',')}</h3>
+                <span className="text-emerald-500 text-xs font-bold flex items-center">
+                   <span className="mr-0.5">↗</span> +15%
+                </span>
               </div>
-            </motion.div>
-            
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6">
-              <div className="text-zinc-400 text-sm font-medium mb-2">Avaliação Média</div>
-              <div className="text-3xl font-bold text-white flex items-end gap-2">
-                {stats.avaliacoes} <span className="text-lg text-yellow-500">⭐</span>
-              </div>
-              <div className="mt-2 text-xs text-zinc-500">Baseado em {stats.sessoesRealizadas} sessões</div>
+              <p className="text-[11px] text-zinc-600 mt-2 uppercase tracking-wider font-bold">Em relação ao mês passado</p>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="rounded-2xl border border-red-900/30 bg-red-900/10 p-6">
-              <div className="text-red-400 text-sm font-medium mb-2">Ação Necessária</div>
-              <div className="text-3xl font-bold text-white">{stats.relatoriosPendentes}</div>
-              <div className="mt-2 text-xs text-zinc-400">Relatórios de entrevista aguardando envio</div>
+            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-2xl bg-[#0a0a0a] border border-zinc-800/50 shadow-sm transition-all">
+              <p className="text-zinc-500 text-sm font-medium">Avaliação Média</p>
+              <div className="flex items-baseline gap-2 mt-2">
+                <h3 className="text-3xl font-bold">{stats.avaliacoes}</h3>
+                <span className="text-yellow-500 text-sm">★</span>
+              </div>
+              <p className="text-[11px] text-zinc-600 mt-2 uppercase tracking-wider font-bold">Baseado em {stats.sessoesRealizadas} sessões</p>
             </motion.div>
-          </div>
 
-          {/* Seção de Agendamentos */}
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-900/30 overflow-hidden">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-6 border-b border-zinc-800 gap-4">
-              <h2 className="text-lg font-bold text-white">Sua Grade de Sessões</h2>
-              
-              {/* Filtro de Data Dinâmico */}
-              <div className="flex items-center gap-3">
-                <label htmlFor="dataFiltro" className="text-sm text-zinc-400 font-medium">Filtrar por data:</label>
-                <input
-                  type="date"
-                  id="dataFiltro"
+            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-2xl bg-[#0a0a0a] border border-red-500/20 shadow-[0_0_30px_rgba(239,68,68,0.05)] transition-all relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                <FileText size={40} className="text-red-500" />
+              </div>
+              <p className="text-red-500/80 text-sm font-bold">Ação Necessária</p>
+              <h3 className="text-4xl font-black mt-2">{stats.relatoriosPendentes}</h3>
+              <p className="text-[11px] text-zinc-600 mt-2 uppercase tracking-wider font-bold">Relatórios aguardando envio</p>
+            </motion.div>
+          </section>
+
+          {/* Grade de Sessões */}
+          <section className="bg-[#0a0a0a] rounded-3xl border border-zinc-800/50 overflow-hidden shadow-2xl">
+            <div className="p-8 border-b border-zinc-800/50 flex flex-col sm:flex-row justify-between items-center gap-4 bg-[#0c0c0c]">
+              <h2 className="text-xl font-bold">Sua Grade de Sessões</h2>
+              <div className="flex items-center gap-4 bg-zinc-900/80 p-1.5 rounded-2xl border border-zinc-800">
+                <span className="pl-3 text-xs font-bold text-zinc-500 uppercase tracking-widest">Filtrar por data:</span>
+                <input 
+                  type="date" 
                   value={dataFiltro}
                   onChange={(e) => setDataFiltro(e.target.value)}
-                  className="rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors [color-scheme:dark]"
+                  className="bg-zinc-800 text-sm rounded-xl px-4 py-2 border border-zinc-700 outline-none focus:ring-2 ring-blue-500/20 transition-all [color-scheme:dark]"
                 />
               </div>
             </div>
 
-            <div className="p-0">
-              {agendamentosFiltrados.length > 0 ? (
-                <div className="flex flex-col divide-y divide-zinc-800/50">
-                  {agendamentosFiltrados.map((agendamento) => (
-                    <div key={agendamento.id} className="flex flex-col md:flex-row md:items-center justify-between p-6 hover:bg-zinc-800/30 transition-colors gap-6">
-                      <div className="flex items-center gap-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600/10 text-blue-500 font-bold text-lg ring-1 ring-blue-600/20">
-                          {agendamento.alunoNome.charAt(0)}
-                        </div>
-                        <div>
-                          <p className="font-bold text-white">{agendamento.alunoNome}</p>
-                          <p className="text-sm text-zinc-400">{agendamento.vagaAlvo}</p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex flex-col md:items-end gap-2">
-                        <div className="flex items-center gap-2 text-sm text-zinc-300">
-                          <svg className="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                          {agendamento.hora}
-                        </div>
-                        <a 
-                          href={agendamento.salaUrl} 
-                          target="_blank" 
-                          rel="noreferrer"
-                          className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
-                        >
-                          Entrar na Sala (Meet)
-                        </a>
-                      </div>
+            <div className="divide-y divide-zinc-800/50">
+              {agendamentos.map((sessao) => (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  key={sessao.id} 
+                  className="p-8 flex flex-col md:flex-row items-center justify-between group hover:bg-white/[0.02] transition-colors"
+                >
+                  <div className="flex items-center gap-6">
+                    <div className={`h-14 w-14 rounded-full ${sessao.cor} flex items-center justify-center font-bold text-lg text-white shadow-inner`}>
+                      {sessao.alunoNome.charAt(0)}
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="p-12 text-center text-zinc-500 flex flex-col items-center">
-                  <svg className="w-12 h-12 text-zinc-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                  <p className="text-lg font-medium">Nenhuma mentoria agendada para este dia.</p>
-                  <p className="text-sm mt-1">Altere o filtro de data acima para buscar outras sessões.</p>
-                </div>
-              )}
+                    <div>
+                      <h4 className="text-lg font-bold group-hover:text-blue-400 transition-colors">{sessao.alunoNome}</h4>
+                      <p className="text-zinc-500 text-sm font-medium">{sessao.vagaAlvo}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-10 mt-6 md:mt-0">
+                    <div className="flex flex-col items-end">
+                      <div className="flex items-center gap-2 text-zinc-300 font-semibold">
+                        <Clock size={16} className="text-zinc-600" />
+                        {sessao.hora}
+                      </div>
+                      <span className="text-[10px] text-zinc-600 uppercase font-bold tracking-widest mt-1">Horário de Brasília</span>
+                    </div>
+
+                    <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5 rounded-2xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-blue-600/20">
+                      <Video size={18} />
+                      Entrar na Sala (Meet)
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
             </div>
-          </div>
+          </section>
+
         </div>
       </main>
     </div>
