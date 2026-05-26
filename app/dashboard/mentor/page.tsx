@@ -43,11 +43,15 @@ export default function MentorDashboard() {
     },
   ];
 
+  const agendamentosFiltrados = agendamentos.filter(
+    (ag) => ag.data === dataFiltro
+  );
+
   return (
     <div className="flex min-h-screen bg-[#050505] text-zinc-100 font-sans">
       
       {/* Sidebar Lateral */}
-      <aside className="w-72 border-r border-zinc-800/50 bg-[#0a0a0a] flex flex-col sticky top-0 h-screen">
+      <aside className="w-72 border-r border-zinc-800/50 bg-[#0a0a0a] flex flex-col sticky top-0 h-screen hidden md:flex">
         <div className="p-8">
           <Link href="/" className="flex items-center gap-3 group">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 font-bold text-white shadow-[0_0_20px_rgba(37,99,235,0.3)] group-hover:scale-105 transition-transform">
@@ -59,36 +63,39 @@ export default function MentorDashboard() {
           </Link>
         </div>
 
+        {/* NAVEGAÇÃO LINKADA */}
         <nav className="flex-1 px-4 space-y-2">
-          <Link href="#" className="flex items-center gap-3 rounded-xl bg-blue-600/10 text-blue-500 px-4 py-3.5 text-sm font-semibold border border-blue-500/20">
+          <Link href="/dashboard/mentor" className="flex items-center gap-3 rounded-xl bg-blue-600/10 text-blue-500 px-4 py-3.5 text-sm font-semibold border border-blue-500/20">
             <LayoutDashboard size={20} />
             Visão Geral
           </Link>
-          <Link href="#" className="flex items-center gap-3 rounded-xl text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200 px-4 py-3.5 text-sm font-medium transition-all group">
+          <Link href="/dashboard/mentor/agenda" className="flex items-center gap-3 rounded-xl text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200 px-4 py-3.5 text-sm font-medium transition-all group">
             <CalendarDays size={20} className="group-hover:text-blue-500 transition-colors" />
             Minha Agenda
           </Link>
-          <Link href="#" className="flex items-center justify-between rounded-xl text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200 px-4 py-3.5 text-sm font-medium transition-all group">
+          <Link href="/dashboard/mentor/relatorios" className="flex items-center justify-between rounded-xl text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200 px-4 py-3.5 text-sm font-medium transition-all group">
             <div className="flex items-center gap-3">
               <FileText size={20} className="group-hover:text-blue-500 transition-colors" />
               Relatórios Pendentes
             </div>
-            <span className="bg-red-500/10 text-red-500 text-[10px] font-bold px-2 py-0.5 rounded-full border border-red-500/20">
-              {stats.relatoriosPendentes}
-            </span>
+            {stats.relatoriosPendentes > 0 && (
+              <span className="bg-red-500/10 text-red-500 text-[10px] font-bold px-2 py-0.5 rounded-full border border-red-500/20">
+                {stats.relatoriosPendentes}
+              </span>
+            )}
           </Link>
         </nav>
 
         <div className="p-6 border-t border-zinc-800/50">
-          <button className="flex items-center gap-3 w-full rounded-xl text-zinc-500 hover:text-red-400 hover:bg-red-400/5 px-4 py-3 text-sm font-medium transition-all">
+          <Link href="/login" className="flex items-center gap-3 w-full rounded-xl text-zinc-500 hover:text-red-400 hover:bg-red-400/5 px-4 py-3 text-sm font-medium transition-all">
             <LogOut size={20} />
             Sair
-          </button>
+          </Link>
         </div>
       </aside>
 
       {/* Conteúdo Central */}
-      <main className="flex-1">
+      <main className="flex-1 flex flex-col h-screen overflow-y-auto">
         {/* Top Header */}
         <header className="flex items-center justify-between px-10 py-6 border-b border-zinc-800/50 bg-[#050505]/80 backdrop-blur-md sticky top-0 z-20">
           <div>
@@ -111,7 +118,7 @@ export default function MentorDashboard() {
           </div>
         </header>
 
-        <div className="p-10 space-y-10 max-w-[1400px] mx-auto">
+        <div className="p-10 space-y-10 max-w-[1400px] mx-auto w-full">
           
           {/* Grid de Estatísticas */}
           <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -161,39 +168,47 @@ export default function MentorDashboard() {
             </div>
 
             <div className="divide-y divide-zinc-800/50">
-              {agendamentos.map((sessao) => (
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  key={sessao.id} 
-                  className="p-8 flex flex-col md:flex-row items-center justify-between group hover:bg-white/[0.02] transition-colors"
-                >
-                  <div className="flex items-center gap-6">
-                    <div className={`h-14 w-14 rounded-full ${sessao.cor} flex items-center justify-center font-bold text-lg text-white shadow-inner`}>
-                      {sessao.alunoNome.charAt(0)}
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-bold group-hover:text-blue-400 transition-colors">{sessao.alunoNome}</h4>
-                      <p className="text-zinc-500 text-sm font-medium">{sessao.vagaAlvo}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-10 mt-6 md:mt-0">
-                    <div className="flex flex-col items-end">
-                      <div className="flex items-center gap-2 text-zinc-300 font-semibold">
-                        <Clock size={16} className="text-zinc-600" />
-                        {sessao.hora}
+              {agendamentosFiltrados.length > 0 ? (
+                agendamentosFiltrados.map((sessao) => (
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    key={sessao.id} 
+                    className="p-8 flex flex-col md:flex-row items-center justify-between group hover:bg-white/[0.02] transition-colors"
+                  >
+                    <div className="flex items-center gap-6">
+                      <div className={`h-14 w-14 rounded-full ${sessao.cor} flex items-center justify-center font-bold text-lg text-white shadow-inner`}>
+                        {sessao.alunoNome.charAt(0)}
                       </div>
-                      <span className="text-[10px] text-zinc-600 uppercase font-bold tracking-widest mt-1">Horário de Brasília</span>
+                      <div>
+                        <h4 className="text-lg font-bold group-hover:text-blue-400 transition-colors">{sessao.alunoNome}</h4>
+                        <p className="text-zinc-500 text-sm font-medium">{sessao.vagaAlvo}</p>
+                      </div>
                     </div>
 
-                    <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5 rounded-2xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-blue-600/20">
-                      <Video size={18} />
-                      Entrar na Sala (Meet)
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
+                    <div className="flex items-center gap-10 mt-6 md:mt-0">
+                      <div className="flex flex-col items-end">
+                        <div className="flex items-center gap-2 text-zinc-300 font-semibold">
+                          <Clock size={16} className="text-zinc-600" />
+                          {sessao.hora}
+                        </div>
+                        <span className="text-[10px] text-zinc-600 uppercase font-bold tracking-widest mt-1">Horário de Brasília</span>
+                      </div>
+
+                      <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5 rounded-2xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-blue-600/20">
+                        <Video size={18} />
+                        Entrar na Sala (Meet)
+                      </button>
+                    </div>
+                  </motion.div>
+                ))
+              ) : (
+                <div className="p-12 text-center text-zinc-500 flex flex-col items-center">
+                  <CalendarDays size={48} className="text-zinc-700 mb-4" />
+                  <p className="text-lg font-medium">Nenhuma mentoria agendada para este dia.</p>
+                  <p className="text-sm mt-1">Altere o filtro de data acima para buscar outras sessões.</p>
+                </div>
+              )}
             </div>
           </section>
 
