@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Cookies from "js-cookie";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   LayoutDashboard, 
@@ -13,81 +15,95 @@ import {
   Clock,
   Filter,
   ArrowRight,
-  MessageSquare
+  MessageSquare,
+  Loader2
 } from "lucide-react";
 
-// Mock de dados dos mentores (Simulando a tabela usuarios + perfis_mentores)
-const MENTORES_MOCK = [
-  {
-    id: "m1",
-    nome: "Carlos Souza",
-    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=150&h=150&q=80",
-    cargo: "Senior Software Engineer",
-    empresa: "Tech Global",
-    precoHora: 120,
-    avaliacao: 4.9,
-    sessoes: 42,
-    especialidades: ["React", "Node.js", "Arquitetura"],
-    bio: "Especialista em ecossistema JavaScript. Posso te ajudar a estruturar projetos escaláveis em React e Node.js, além de preparar para entrevistas técnicas focadas em vagas de nível Júnior e Pleno.",
-  },
-  {
-    id: "m2",
-    nome: "Ana Beatriz Lima",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&h=150&q=80",
-    cargo: "Cloud Architect & Tech Lead",
-    empresa: "CloudOps Startups",
-    precoHora: 150,
-    avaliacao: 5.0,
-    sessoes: 89,
-    especialidades: ["AWS", "Docker", "PostgreSQL"],
-    bio: "Foco em infraestrutura, deploy e banco de dados. Se você precisa entender como escalar uma aplicação com Docker, AWS Practitioner ou otimizar queries em PostgreSQL, marque uma sessão.",
-  },
-  {
-    id: "m3",
-    nome: "Diego Fernandes",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&h=150&q=80",
-    cargo: "Mobile Tech Lead",
-    empresa: "App Masters",
-    precoHora: 90,
-    avaliacao: 4.8,
-    sessoes: 27,
-    especialidades: ["Flutter", "React Native", "UI/UX"],
-    bio: "Desenvolvedor mobile há 8 anos. Ajudo residentes e desenvolvedores em início de carreira a tirar projetos mobile do papel e colocar nas lojas da Apple e Google com qualidade.",
-  },
-  {
-    id: "m4",
-    nome: "Juliana Costa",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&h=150&q=80",
-    cargo: "Engenheira de Qualidade (QA)",
-    empresa: "CESAR Labs",
-    precoHora: 80,
-    avaliacao: 4.9,
-    sessoes: 15,
-    especialidades: ["QA", "Testes Automatizados", "Cypress"],
-    bio: "Garanta que o seu código funciona antes de ir para produção. Ensino fundamentos de software testing, validação de funcionalidades e identificação de falhas para devs Full Stack.",
-  }
-];
+// Tipagem baseada na resposta da nossa API (Prisma)
+type PerfilMentor = {
+  bio: string | null;
+  precoHora: string | number | null;
+  especialidades: string[];
+};
+
+type MentorAPI = {
+  id: string;
+  nome: string;
+  avatarUrl: string | null;
+  perfilMentor: PerfilMentor | null;
+};
 
 const CATEGORIAS = ["Todos", "Frontend", "Backend", "Mobile", "Cloud & Infra", "QA"];
 
 export default function MentoradoMentoresPage() {
+  const router = useRouter();
+  
+  // Estados da página
   const [busca, setBusca] = useState("");
   const [categoriaAtiva, setCategoriaAtiva] = useState("Todos");
+  const [mentores, setMentores] = useState<MentorAPI[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Lógica de Filtro Simples
-  const mentoresFiltrados = MENTORES_MOCK.filter(mentor => {
+  // Efeito de Autenticação e Fetching
+  useEffect(() => {
+    // 1. Verificação de Segurança (Proteção de Rota)
+    const token = Cookies.get("mentora_tech_token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    // 2. Busca de Dados da API
+    const fetchMentores = async () => {
+      try {
+        const resposta = await fetch("http://localhost:3333/api/mentores", {
+          headers: {
+            "Authorization": `Bearer ${token}` // Boa prática de segurança
+          }
+        });
+
+        if (!resposta.ok) {
+          throw new Error("Falha ao buscar mentores.");
+        }
+
+        const dados = await resposta.json();
+        setMentores(dados);
+      } catch (error) {
+        console.error("Erro na API:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMentores();
+  }, [router]);
+
+  // Lógica de Filtro Interativo
+  const mentoresFiltrados = mentores.filter(mentor => {
+    const especialidades = mentor.perfilMentor?.especialidades || [];
+    
     const matchBusca = mentor.nome.toLowerCase().includes(busca.toLowerCase()) || 
-                       mentor.especialidades.some(esp => esp.toLowerCase().includes(busca.toLowerCase()));
+                       especialidades.some(esp => esp.toLowerCase().includes(busca.toLowerCase()));
     
     if (categoriaAtiva === "Todos") return matchBusca;
-    if (categoriaAtiva === "Frontend") return matchBusca && mentor.especialidades.some(e => ["React", "UI/UX"].includes(e));
-    if (categoriaAtiva === "Backend") return matchBusca && mentor.especialidades.some(e => ["Node.js", "PostgreSQL", "Arquitetura"].includes(e));
-    if (categoriaAtiva === "Mobile") return matchBusca && mentor.especialidades.some(e => ["Flutter", "React Native"].includes(e));
-    if (categoriaAtiva === "Cloud & Infra") return matchBusca && mentor.especialidades.some(e => ["AWS", "Docker"].includes(e));
-    if (categoriaAtiva === "QA") return matchBusca && mentor.especialidades.some(e => ["QA", "Testes Automatizados", "Cypress"].includes(e));
+    
+    // Filtros genéricos baseados nas palavras-chave (ajuste conforme necessário)
+    if (categoriaAtiva === "Frontend") return matchBusca && especialidades.some(e => e.toLowerCase().includes("react") || e.toLowerCase().includes("front"));
+    if (categoriaAtiva === "Backend") return matchBusca && especialidades.some(e => e.toLowerCase().includes("node") || e.toLowerCase().includes("back") || e.toLowerCase().includes("postgres"));
+    if (categoriaAtiva === "Mobile") return matchBusca && especialidades.some(e => e.toLowerCase().includes("flutter") || e.toLowerCase().includes("react native"));
+    if (categoriaAtiva === "Cloud & Infra") return matchBusca && especialidades.some(e => e.toLowerCase().includes("aws") || e.toLowerCase().includes("docker"));
+    if (categoriaAtiva === "QA") return matchBusca && especialidades.some(e => e.toLowerCase().includes("qa") || e.toLowerCase().includes("teste"));
     
     return matchBusca;
   });
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-[#050505] text-blue-500">
+        <Loader2 size={48} className="animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-[#050505] text-zinc-100 font-sans">
@@ -114,23 +130,28 @@ export default function MentoradoMentoresPage() {
             <Search size={20} />
             Encontrar Mentores
           </Link>
-          <Link href="#" className="flex items-center gap-3 rounded-xl text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200 px-4 py-3.5 text-sm font-medium transition-all group">
+          <Link href="/dashboard/mentorado/feedbacks" className="flex items-center gap-3 rounded-xl text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200 px-4 py-3.5 text-sm font-medium transition-all group">
             <MessageSquare size={20} className="group-hover:text-blue-500 transition-colors" />
             Meus Feedbacks
           </Link>
         </nav>
 
         <div className="p-6 border-t border-zinc-800/50">
-          <Link href="/login" className="flex items-center gap-3 w-full rounded-xl text-zinc-500 hover:text-red-400 hover:bg-red-400/5 px-4 py-3 text-sm font-medium transition-all">
+          <button 
+            onClick={() => {
+              Cookies.remove("mentora_tech_token");
+              router.push("/login");
+            }}
+            className="flex items-center gap-3 w-full rounded-xl text-zinc-500 hover:text-red-400 hover:bg-red-400/5 px-4 py-3 text-sm font-medium transition-all"
+          >
             <LogOut size={20} />
             Sair
-          </Link>
+          </button>
         </div>
       </aside>
 
       {/* Conteúdo Central */}
       <main className="flex-1 flex flex-col h-screen overflow-y-auto">
-        {/* Top Header */}
         <header className="flex items-center justify-between px-10 py-6 border-b border-zinc-800/50 bg-[#050505]/80 backdrop-blur-md sticky top-0 z-20">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Mentores Disponíveis</h1>
@@ -188,81 +209,93 @@ export default function MentoradoMentoresPage() {
             </div>
           </div>
 
-          {/* Vitrine de Mentores */}
+          {/* Vitrine de Mentores Dinâmica */}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
             <AnimatePresence>
               {mentoresFiltrados.length > 0 ? (
-                mentoresFiltrados.map((mentor) => (
-                  <motion.div
-                    layout
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                    key={mentor.id}
-                    className="bg-[#0a0a0a] rounded-3xl border border-zinc-800/50 overflow-hidden hover:border-blue-500/30 transition-colors flex flex-col group"
-                  >
-                    <div className="p-8 flex-1">
-                      <div className="flex flex-col sm:flex-row gap-6 items-start">
-                        <img 
-                          src={mentor.avatar} 
-                          alt={mentor.nome} 
-                          className="w-24 h-24 rounded-2xl object-cover border-2 border-zinc-800 group-hover:border-blue-500/50 transition-colors"
-                        />
-                        <div className="flex-1">
-                          <div className="flex justify-between items-start gap-4">
-                            <div>
-                              <h2 className="text-xl font-bold text-white group-hover:text-blue-400 transition-colors">{mentor.nome}</h2>
-                              <p className="text-sm text-zinc-400 mt-0.5">{mentor.cargo} @ {mentor.empresa}</p>
-                            </div>
-                            <div className="flex flex-col items-end">
-                              <span className="text-lg font-bold text-white bg-zinc-900/50 px-3 py-1.5 rounded-lg border border-zinc-800">
-                                R$ {mentor.precoHora}<span className="text-xs text-zinc-500 font-normal">/h</span>
-                              </span>
-                            </div>
-                          </div>
+                mentoresFiltrados.map((mentor) => {
+                  const especialidades = mentor.perfilMentor?.especialidades || [];
+                  const preco = mentor.perfilMentor?.precoHora ? Number(mentor.perfilMentor.precoHora).toFixed(2) : "A combinar";
+                  const bio = mentor.perfilMentor?.bio || "Este mentor ainda não atualizou a sua biografia. Entre em contacto para saber mais!";
+                  // Fallback para caso o mentor ainda não tenha foto configurada
+                  const avatarFallback = mentor.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(mentor.nome)}&background=2563eb&color=fff`;
 
-                          <div className="flex items-center gap-4 mt-3">
-                            <div className="flex items-center gap-1.5 bg-yellow-500/10 px-2 py-1 rounded-md border border-yellow-500/20">
-                              <Star size={14} className="text-yellow-500 fill-yellow-500" />
-                              <span className="text-xs font-bold text-yellow-500">{mentor.avaliacao}</span>
+                  return (
+                    <motion.div
+                      layout
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      key={mentor.id}
+                      className="bg-[#0a0a0a] rounded-3xl border border-zinc-800/50 overflow-hidden hover:border-blue-500/30 transition-colors flex flex-col group"
+                    >
+                      <div className="p-8 flex-1">
+                        <div className="flex flex-col sm:flex-row gap-6 items-start">
+                          <img 
+                            src={avatarFallback} 
+                            alt={mentor.nome} 
+                            className="w-24 h-24 rounded-2xl object-cover border-2 border-zinc-800 group-hover:border-blue-500/50 transition-colors"
+                          />
+                          <div className="flex-1 w-full">
+                            <div className="flex justify-between items-start gap-4">
+                              <div>
+                                <h2 className="text-xl font-bold text-white group-hover:text-blue-400 transition-colors">{mentor.nome}</h2>
+                                <p className="text-sm text-zinc-400 mt-0.5">Especialista Tech</p>
+                              </div>
+                              <div className="flex flex-col items-end">
+                                <span className="text-lg font-bold text-white bg-zinc-900/50 px-3 py-1.5 rounded-lg border border-zinc-800 whitespace-nowrap">
+                                  {preco !== "A combinar" ? `R$ ${preco}` : preco}
+                                  {preco !== "A combinar" && <span className="text-xs text-zinc-500 font-normal">/h</span>}
+                                </span>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-1.5 text-zinc-500 text-xs font-medium">
-                              <Clock size={14} />
-                              {mentor.sessoes} mentorias realizadas
+
+                            <div className="flex items-center gap-4 mt-3">
+                              <div className="flex items-center gap-1.5 bg-yellow-500/10 px-2 py-1 rounded-md border border-yellow-500/20">
+                                <Star size={14} className="text-yellow-500 fill-yellow-500" />
+                                <span className="text-xs font-bold text-yellow-500">Novo</span>
+                              </div>
+                              <div className="flex items-center gap-1.5 text-zinc-500 text-xs font-medium">
+                                <Clock size={14} />
+                                Disponível
+                              </div>
                             </div>
                           </div>
                         </div>
+
+                        <p className="mt-6 text-sm text-zinc-400 leading-relaxed line-clamp-3">
+                          {bio}
+                        </p>
+
+                        <div className="mt-6 flex flex-wrap gap-2">
+                          {especialidades.map(esp => (
+                            <span key={esp} className="bg-blue-600/10 text-blue-400 border border-blue-500/20 px-3 py-1.5 rounded-lg text-xs font-semibold">
+                              {esp}
+                            </span>
+                          ))}
+                          {especialidades.length === 0 && (
+                            <span className="text-xs text-zinc-600 italic">Especialidades não informadas</span>
+                          )}
+                        </div>
                       </div>
 
-                      <p className="mt-6 text-sm text-zinc-400 leading-relaxed line-clamp-3">
-                        {mentor.bio}
-                      </p>
-
-                      <div className="mt-6 flex flex-wrap gap-2">
-                        {mentor.especialidades.map(esp => (
-                          <span key={esp} className="bg-blue-600/10 text-blue-400 border border-blue-500/20 px-3 py-1.5 rounded-lg text-xs font-semibold">
-                            {esp}
-                          </span>
-                        ))}
+                      <div className="p-4 border-t border-zinc-800/50 bg-[#0c0c0c]">
+                        <button className="w-full flex items-center justify-center gap-2 bg-white text-black hover:bg-zinc-200 px-6 py-3.5 rounded-2xl font-bold text-sm transition-all hover:scale-[1.01] active:scale-95 shadow-lg shadow-white/5">
+                          Agendar Sessão
+                          <ArrowRight size={18} />
+                        </button>
                       </div>
-                    </div>
-
-                    <div className="p-4 border-t border-zinc-800/50 bg-[#0c0c0c]">
-                      <button className="w-full flex items-center justify-center gap-2 bg-white text-black hover:bg-zinc-200 px-6 py-3.5 rounded-2xl font-bold text-sm transition-all hover:scale-[1.01] active:scale-95 shadow-lg shadow-white/5">
-                        Agendar Sessão
-                        <ArrowRight size={18} />
-                      </button>
-                    </div>
-                  </motion.div>
-                ))
+                    </motion.div>
+                  );
+                })
               ) : (
                 <div className="col-span-full py-20 flex flex-col items-center justify-center text-center">
                   <div className="bg-zinc-900 p-4 rounded-full mb-4">
                     <Search size={32} className="text-zinc-600" />
                   </div>
                   <h3 className="text-xl font-bold text-white mb-2">Nenhum mentor encontrado</h3>
-                  <p className="text-zinc-500 max-w-md">Não conseguimos encontrar nenhum especialista com o termo "{busca}" ou na categoria selecionada. Tente limpar os filtros.</p>
+                  <p className="text-zinc-500 max-w-md">Ainda não existem mentores com estes critérios ou não foi retornado nenhum dado da API.</p>
                   <button 
                     onClick={() => { setBusca(""); setCategoriaAtiva("Todos"); }}
                     className="mt-6 text-blue-500 hover:text-blue-400 font-bold text-sm"
