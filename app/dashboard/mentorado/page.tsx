@@ -1,68 +1,106 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import Cookies from "js-cookie";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
-  LayoutDashboard, 
-  Search, 
-  MessageSquare, 
-  LogOut, 
-  Bell, 
-  ChevronRight, 
-  Clock, 
-  Video, 
-  Award,
-  BookOpen,
-  Lightbulb,
-  ArrowUpRight
+  LayoutDashboard, Search, LogOut, Bell, ChevronRight,
+  MessageSquare, Loader2, Calendar, Clock, Video, FileText
 } from "lucide-react";
 
-export default function MentoradoDashboard() {
-  const stats = {
-    mentoriasConcluidas: 4,
-    feedbacksRecebidos: 4,
-    proximaSessaoEm: "Amanhã, 14:00",
+// Tipagem baseada na resposta da nossa API de Agendamentos
+type AgendamentoAPI = {
+  id: string;
+  dataHoraInicio: string;
+  vagaAlvo: string;
+  status: string;
+  mentor: {
+    nome: string;
+    avatarUrl: string | null;
+    email: string;
+  };
+};
+
+export default function MentoradoDashboardPage() {
+  const router = useRouter();
+  
+  // Estados
+  const [agendamentos, setAgendamentos] = useState<AgendamentoAPI[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [usuarioNome, setUsuarioNome] = useState("");
+  
+  // Estado para o filtro de data específica (Padrão: data de hoje no formato YYYY-MM-DD)
+  const [dataFiltro, setDataFiltro] = useState(() => {
+    const hoje = new Date();
+    return hoje.toISOString().split('T')[0];
+  });
+
+  useEffect(() => {
+    const token = Cookies.get("mentora_tech_token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    const userStr = localStorage.getItem("mentora_user");
+    let alunoId = "";
+    if (userStr) {
+      const aluno = JSON.parse(userStr);
+      setUsuarioNome(aluno.nome);
+      alunoId = aluno.id;
+    }
+
+    // Busca os agendamentos passando o alunoId e a data específica para o back-end
+    const fetchAgendamentos = async () => {
+      setIsLoading(true);
+      try {
+        const url = new URL("http://localhost:3333/api/agendamentos");
+        url.searchParams.append("alunoId", alunoId);
+        
+        // Aplica o filtro da data selecionada pelo utilizador
+        if (dataFiltro) {
+          url.searchParams.append("data", dataFiltro);
+        }
+
+        const resposta = await fetch(url.toString(), {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (!resposta.ok) throw new Error("Falha ao buscar agendamentos.");
+        
+        const dados = await resposta.json();
+        setAgendamentos(dados);
+      } catch (error) {
+        console.error("Erro na API:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (alunoId) {
+      fetchAgendamentos();
+    }
+  }, [router, dataFiltro]); // Refaz o fetch sempre que a dataFiltro mudar
+
+  // Formatação de data e hora para exibição
+  const formatarHora = (dataIso: string) => {
+    return new Date(dataIso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   };
 
-  const proximasSessoes = [
-    {
-      id: "1",
-      mentorNome: "Carlos Souza",
-      mentorAvatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=100&h=100&q=80",
-      vagaAlvo: "Desenvolvedor Júnior Full Stack",
-      dataHora: "27 de Maio, 14:00 - 15:00",
-      salaUrl: "https://meet.google.com/abc-defg-hij",
-      foco: "Simulado de Entrevista (React & Node.js)",
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'confirmado': return 'bg-green-500/10 text-green-500 border-green-500/20';
+      case 'cancelado': return 'bg-red-500/10 text-red-500 border-red-500/20';
+      default: return 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20';
     }
-  ];
-
-  const historicoSessoes = [
-    {
-      id: "2",
-      mentorNome: "Ana Silva",
-      mentorAvatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&h=100&q=80",
-      vagaAlvo: "Estágio em Engenharia de Software",
-      dataHora: "15 de Maio, 10:00",
-      status: "concluido",
-      temRelatorio: true,
-      notaTecnica: 8,
-    },
-    {
-      id: "3",
-      mentorNome: "Diego Fernandes",
-      mentorAvatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=100&h=100&q=80",
-      vagaAlvo: "Desenvolvedor Júnior Full Stack",
-      dataHora: "02 de Maio, 16:30",
-      status: "concluido",
-      temRelatorio: true,
-      notaTecnica: 7,
-    }
-  ];
+  };
 
   return (
     <div className="flex min-h-screen bg-[#050505] text-zinc-100 font-sans">
       
-      {/* Sidebar Lateral Premium */}
+      {/* Sidebar Lateral */}
       <aside className="w-72 border-r border-zinc-800/50 bg-[#0a0a0a] flex flex-col sticky top-0 h-screen hidden md:flex">
         <div className="p-8">
           <Link href="/" className="flex items-center gap-3 group">
@@ -91,158 +129,143 @@ export default function MentoradoDashboard() {
         </nav>
 
         <div className="p-6 border-t border-zinc-800/50">
-          <Link href="/login" className="flex items-center gap-3 w-full rounded-xl text-zinc-500 hover:text-red-400 hover:bg-red-400/5 px-4 py-3 text-sm font-medium transition-all">
+          <button 
+            onClick={() => {
+              Cookies.remove("mentora_tech_token");
+              localStorage.removeItem("mentora_user");
+              router.push("/login");
+            }}
+            className="flex items-center gap-3 w-full rounded-xl text-zinc-500 hover:text-red-400 hover:bg-red-400/5 px-4 py-3 text-sm font-medium transition-all"
+          >
             <LogOut size={20} />
             Sair
-          </Link>
+          </button>
         </div>
       </aside>
 
-      {/* Conteúdo Principal */}
+      {/* Conteúdo Central */}
       <main className="flex-1 flex flex-col h-screen overflow-y-auto">
-        {/* Top Header */}
         <header className="flex items-center justify-between px-10 py-6 border-b border-zinc-800/50 bg-[#050505]/80 backdrop-blur-md sticky top-0 z-20">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Olá, Leonardo</h1>
-            <p className="text-zinc-500 text-sm mt-0.5">Preparado para dar o próximo passo na sua carreira tech?</p>
+            <h1 className="text-2xl font-bold tracking-tight">Olá, {usuarioNome.split(' ')[0]} 👋</h1>
+            <p className="text-zinc-500 text-sm mt-0.5">Acompanhe as suas sessões e evolução.</p>
           </div>
           <div className="flex items-center gap-6">
             <button className="relative text-zinc-400 hover:text-white transition-colors">
               <Bell size={22} />
-              <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#050505]"></span>
+              <span className="absolute top-0 right-0 w-2 h-2 bg-blue-500 rounded-full"></span>
             </button>
             <div className="flex items-center gap-3 p-1 pr-4 rounded-full bg-zinc-900/50 border border-zinc-800/50">
               <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-bold text-white text-xs border border-zinc-700">
-                L
+                {usuarioNome ? usuarioNome.charAt(0).toUpperCase() : "U"}
               </div>
               <ChevronRight size={14} className="text-zinc-600" />
             </div>
           </div>
         </header>
 
-        <div className="p-10 space-y-10 max-w-[1400px] mx-auto w-full">
-          {/* Grid de Estatísticas */}
-          <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-2xl bg-[#0a0a0a] border border-zinc-800/50 shadow-sm transition-all">
-              <p className="text-zinc-500 text-sm font-medium">Mentorias Concluídas</p>
-              <h3 className="text-3xl font-bold mt-2">{stats.mentoriasConcluidas}</h3>
-              <p className="text-[11px] text-zinc-600 mt-2 uppercase tracking-wider font-bold">Horas de puro aprendizado prático</p>
-            </motion.div>
-            
-            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-2xl bg-[#0a0a0a] border border-zinc-800/50 shadow-sm transition-all">
-              <p className="text-zinc-500 text-sm font-medium">Feedbacks Técnicos</p>
-              <h3 className="text-3xl font-bold mt-2">{stats.feedbacksRecebidos}</h3>
-              <p className="text-[11px] text-zinc-600 mt-2 uppercase tracking-wider font-bold">Relatórios gerados por seniores</p>
-            </motion.div>
-
-            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-2xl bg-[#0a0a0a] border border-blue-500/20 shadow-[0_0_30px_rgba(37,99,235,0.05)] transition-all relative overflow-hidden group">
-              <p className="text-blue-500/80 text-sm font-bold">Próxima Sessão</p>
-              <h3 className="text-xl font-bold text-white mt-2 truncate">{stats.proximaSessaoEm}</h3>
-              <Link href="#proxima" className="mt-2 text-[11px] text-zinc-400 font-bold flex items-center gap-1 group-hover:text-blue-400 transition-colors uppercase tracking-wider">
-                Ver detalhes <ArrowUpRight size={12} />
-              </Link>
-            </motion.div>
-          </section>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-            
-            {/* Coluna Principal */}
-            <div className="lg:col-span-2 space-y-8">
-              
-              {/* Card Destaque: Próxima Mentoria */}
-              <section id="proxima" className="rounded-3xl border border-zinc-800/50 bg-gradient-to-br from-zinc-900/40 to-zinc-950 p-8 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 blur-[80px] rounded-full pointer-events-none"></div>
-                
-                <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2.5">
-                  <span className="flex h-2.5 w-2.5 rounded-full bg-blue-500 animate-pulse"></span>
-                  Sua Próxima Mentoria
-                </h2>
-
-                {proximasSessoes.map((sessao) => (
-                  <div key={sessao.id} className="flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between relative z-10">
-                    <div className="flex items-center gap-5">
-                      <img src={sessao.mentorAvatar} alt={sessao.mentorNome} className="w-14 h-14 rounded-full border-2 border-zinc-800 object-cover" />
-                      <div>
-                        <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">{sessao.dataHora}</p>
-                        <h3 className="text-lg font-bold text-white mt-0.5">{sessao.foco}</h3>
-                        <p className="text-sm text-blue-400 font-medium mt-0.5">com {sessao.mentorNome}</p>
-                      </div>
-                    </div>
-                    
-                    <a 
-                      href={sessao.salaUrl} 
-                      target="_blank" 
-                      rel="noreferrer"
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5 text-sm font-bold shadow-lg shadow-blue-600/20 transition-all hover:scale-[1.01]"
-                    >
-                      <Video size={18} />
-                      Entrar na Sala (Meet)
-                    </a>
-                  </div>
-                ))}
-              </section>
-
-              {/* Histórico e Relatórios */}
-              <section className="bg-[#0a0a0a] rounded-3xl border border-zinc-800/50 overflow-hidden shadow-2xl">
-                <div className="p-8 border-b border-zinc-800/50 bg-[#0c0c0c]">
-                  <h2 className="text-xl font-bold">Histórico de Feedbacks</h2>
-                  <p className="text-zinc-500 text-sm mt-0.5">Acesse os relatórios e vereditos das suas sessões passadas.</p>
-                </div>
-
-                <div className="divide-y divide-zinc-800/50">
-                  {historicoSessoes.map((historico) => (
-                    <div key={historico.id} className="p-6 flex flex-col sm:flex-row sm:items-center justify-between hover:bg-white/[0.01] transition-colors gap-4">
-                      <div className="flex items-center gap-4">
-                        <img src={historico.mentorAvatar} alt={historico.mentorNome} className="w-10 h-10 rounded-full border border-zinc-800 object-cover hidden sm:block" />
-                        <div>
-                          <p className="font-bold text-white text-base">Simulado: {historico.vagaAlvo}</p>
-                          <p className="text-xs text-zinc-500 mt-1">{historico.dataHora} • Mentor: <span className="text-zinc-400 font-medium">{historico.mentorNome}</span></p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center justify-between sm:justify-end gap-8 w-full sm:w-auto border-t sm:border-none border-zinc-900 pt-4 sm:pt-0">
-                        <div className="text-left sm:text-right">
-                          <p className="text-[10px] text-zinc-600 uppercase font-bold tracking-wider">Nota Técnica</p>
-                          <p className="font-bold text-white mt-0.5">{historico.notaTecnica} / 10</p>
-                        </div>
-                        <button className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-2.5 text-sm font-bold text-zinc-200 transition-colors hover:bg-zinc-850 hover:text-white">
-                          Ler Relatório
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
+        <div className="p-10 max-w-[1400px] mx-auto w-full space-y-8">
+          
+          {/* Seção de Filtro de Data */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[#0a0a0a] p-6 rounded-3xl border border-zinc-800/50 shadow-lg">
+            <div>
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <Calendar size={20} className="text-blue-500" />
+                Sua Agenda
+              </h2>
+              <p className="text-sm text-zinc-400 mt-1">Filtre os seus agendamentos por uma data específica.</p>
             </div>
+            
+            <div className="relative">
+              <input
+                type="date"
+                value={dataFiltro}
+                onChange={(e) => setDataFiltro(e.target.value)}
+                className="rounded-xl border border-zinc-800 bg-zinc-900/80 px-4 py-3 text-sm text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors css-color-scheme-dark shadow-inner min-w-[200px]"
+              />
+            </div>
+          </div>
 
-            {/* Coluna Lateral */}
-            <div className="flex flex-col gap-6 w-full">
-              <div className="rounded-3xl border border-zinc-800/50 bg-[#0a0a0a] p-6 shadow-xl">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600/10 text-blue-500 mb-4 border border-blue-500/20">
-                  <BookOpen size={20} />
+          {/* Lista de Agendamentos */}
+          <div className="space-y-4">
+            {isLoading ? (
+              <div className="flex w-full items-center justify-center py-20 text-blue-500">
+                <Loader2 size={32} className="animate-spin" />
+              </div>
+            ) : agendamentos.length > 0 ? (
+              <AnimatePresence>
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                  {agendamentos.map((agendamento) => {
+                    const avatarFallback = agendamento.mentor.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(agendamento.mentor.nome)}&background=2563eb&color=fff`;
+                    
+                    return (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        key={agendamento.id}
+                        className="bg-[#0a0a0a] rounded-3xl border border-zinc-800/50 p-6 hover:border-zinc-700 transition-colors group"
+                      >
+                        <div className="flex justify-between items-start mb-6">
+                          <div className={`px-3 py-1 rounded-full border text-xs font-bold uppercase tracking-wider ${getStatusColor(agendamento.status)}`}>
+                            {agendamento.status}
+                          </div>
+                          <div className="flex items-center gap-2 text-zinc-400 bg-zinc-900/50 px-3 py-1.5 rounded-lg border border-zinc-800">
+                            <Clock size={16} className="text-blue-500" />
+                            <span className="text-sm font-semibold text-white">{formatarHora(agendamento.dataHoraInicio)}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-4 items-center mb-6">
+                          <img src={avatarFallback} alt={agendamento.mentor.nome} className="w-16 h-16 rounded-2xl object-cover border-2 border-zinc-800" />
+                          <div>
+                            <h3 className="text-lg font-bold text-white">{agendamento.mentor.nome}</h3>
+                            <p className="text-sm text-zinc-400">{agendamento.mentor.email}</p>
+                          </div>
+                        </div>
+
+                        <div className="bg-zinc-900/50 rounded-2xl p-4 border border-zinc-800/50 mb-6">
+                          <div className="flex items-center gap-2 text-zinc-400 text-sm mb-2">
+                            <FileText size={16} />
+                            <span className="font-medium">Foco da Sessão:</span>
+                          </div>
+                          <p className="text-white font-semibold">{agendamento.vagaAlvo}</p>
+                        </div>
+
+                        <div className="flex gap-3">
+                          <button className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl font-bold text-sm transition-all shadow-lg shadow-blue-600/20">
+                            <Video size={18} />
+                            Acessar Sala
+                          </button>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
                 </div>
-                <h3 className="font-bold text-white text-lg mb-2">Próximo Passo</h3>
-                <p className="text-sm text-zinc-400 mb-6 leading-relaxed">
-                  Agende uma nova mentoria focada em arquitetura ou revisão de código para continuar evoluindo e subindo suas notas.
-                </p>
-                <Link href="/dashboard/mentorado/mentores" className="flex w-full items-center justify-center rounded-2xl bg-white text-black px-4 py-3.5 text-sm font-bold transition-all hover:bg-zinc-200 hover:scale-[1.01]">
-                  Buscar Mentores
+              </AnimatePresence>
+            ) : (
+              <div className="bg-[#0a0a0a] border border-zinc-800/50 rounded-3xl p-12 text-center flex flex-col items-center">
+                <div className="bg-zinc-900 p-4 rounded-full mb-4">
+                  <Calendar size={32} className="text-zinc-600" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Nenhum agendamento para esta data</h3>
+                <p className="text-zinc-500 max-w-md mb-6">Você não possui sessões marcadas para o dia selecionado. Experimente alterar a data ou encontre um mentor para agendar.</p>
+                <Link href="/dashboard/mentorado/mentores" className="bg-white text-black hover:bg-zinc-200 px-6 py-3 rounded-xl font-bold text-sm transition-all">
+                  Explorar Mentores
                 </Link>
               </div>
-
-              <div className="rounded-3xl border border-zinc-800/50 bg-[#0a0a0a] p-6 shadow-xl">
-                <h3 className="font-bold text-white mb-3 flex items-center gap-2">
-                  <Lightbulb size={18} className="text-yellow-500" /> Dica da Plataforma
-                </h3>
-                <p className="text-sm text-zinc-500 leading-relaxed">
-                  Antes de uma sessão de Simulado Técnico, certifique-se de preencher seus links de portfólio e GitHub para que o mentor possa avaliar seu perfil antes da chamada de vídeo.
-                </p>
-              </div>
-            </div>
-
+            )}
           </div>
+          
         </div>
       </main>
+
+      <style dangerouslySetInnerHTML={{__html: `
+        .css-color-scheme-dark::-webkit-calendar-picker-indicator {
+          filter: invert(1);
+          cursor: pointer;
+        }
+      `}} />
     </div>
   );
 }
