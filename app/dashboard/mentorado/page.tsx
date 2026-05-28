@@ -2,16 +2,28 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { 
+  LayoutDashboard, 
+  Search, 
+  MessageSquare, 
+  LogOut, 
+  Bell, 
+  ChevronRight, 
+  Clock, 
+  Video, 
+  Award,
+  BookOpen,
+  Lightbulb,
+  ArrowUpRight
+} from "lucide-react";
 
 export default function MentoradoDashboard() {
-  // Dados simulados do aluno focados na jornada de evolução
   const stats = {
     mentoriasConcluidas: 4,
     feedbacksRecebidos: 4,
     proximaSessaoEm: "Amanhã, 14:00",
   };
 
-  // Simulação de agendamentos (Futuros e Passados)
   const proximasSessoes = [
     {
       id: "1",
@@ -48,34 +60,39 @@ export default function MentoradoDashboard() {
   ];
 
   return (
-    <div className="flex min-h-screen bg-[#0a0a0a] text-white font-sans">
-      {/* Sidebar Lateral */}
-      <aside className="w-64 border-r border-zinc-800 bg-zinc-950 p-6 hidden md:flex flex-col">
-        <div className="flex items-center gap-2 mb-12">
-          <div className="flex h-8 w-8 items-center justify-center rounded bg-blue-600 font-bold text-white">
-            M
-          </div>
-          <span className="text-xl font-bold tracking-tight">Mentora Tech</span>
+    <div className="flex min-h-screen bg-[#050505] text-zinc-100 font-sans">
+      
+      {/* Sidebar Lateral Premium */}
+      <aside className="w-72 border-r border-zinc-800/50 bg-[#0a0a0a] flex flex-col sticky top-0 h-screen hidden md:flex">
+        <div className="p-8">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 font-bold text-white shadow-[0_0_20px_rgba(37,99,235,0.3)] group-hover:scale-105 transition-transform">
+              M
+            </div>
+            <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-zinc-400">
+              Mentora Tech
+            </span>
+          </Link>
         </div>
 
-        <nav className="flex flex-col gap-2 flex-1">
-          <Link href="/dashboard/mentorado" className="flex items-center gap-3 rounded-lg bg-blue-600/10 text-blue-500 px-4 py-3 text-sm font-medium transition-colors">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+        <nav className="flex-1 px-4 space-y-2">
+          <Link href="/dashboard/mentorado" className="flex items-center gap-3 rounded-xl bg-blue-600/10 text-blue-500 px-4 py-3.5 text-sm font-semibold border border-blue-500/20">
+            <LayoutDashboard size={20} />
             Meu Progresso
           </Link>
-          <Link href="/mentores" className="flex items-center gap-3 rounded-lg text-zinc-400 hover:bg-zinc-900 hover:text-white px-4 py-3 text-sm font-medium transition-colors">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+          <Link href="/dashboard/mentorado/mentores" className="flex items-center gap-3 rounded-xl text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200 px-4 py-3.5 text-sm font-medium transition-all group">
+            <Search size={20} className="group-hover:text-blue-500 transition-colors" />
             Encontrar Mentores
           </Link>
-          <Link href="#" className="flex items-center gap-3 rounded-lg text-zinc-400 hover:bg-zinc-900 hover:text-white px-4 py-3 text-sm font-medium transition-colors">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+          <Link href="/dashboard/mentorado/feedbacks" className="flex items-center gap-3 rounded-xl text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200 px-4 py-3.5 text-sm font-medium transition-all group">
+            <MessageSquare size={20} className="group-hover:text-blue-500 transition-colors" />
             Meus Feedbacks
           </Link>
         </nav>
 
-        <div className="mt-auto pt-6 border-t border-zinc-800">
-          <Link href="#" className="flex items-center gap-3 rounded-lg text-zinc-400 hover:text-white px-4 py-2 text-sm font-medium transition-colors">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+        <div className="p-6 border-t border-zinc-800/50">
+          <Link href="/login" className="flex items-center gap-3 w-full rounded-xl text-zinc-500 hover:text-red-400 hover:bg-red-400/5 px-4 py-3 text-sm font-medium transition-all">
+            <LogOut size={20} />
             Sair
           </Link>
         </div>
@@ -83,66 +100,72 @@ export default function MentoradoDashboard() {
 
       {/* Conteúdo Principal */}
       <main className="flex-1 flex flex-col h-screen overflow-y-auto">
-        {/* Header do Dashboard */}
-        <header className="flex items-center justify-between border-b border-zinc-800 bg-zinc-950/50 px-8 py-5 backdrop-blur-sm sticky top-0 z-10">
+        {/* Top Header */}
+        <header className="flex items-center justify-between px-10 py-6 border-b border-zinc-800/50 bg-[#050505]/80 backdrop-blur-md sticky top-0 z-20">
           <div>
-            <h1 className="text-2xl font-bold">Olá, Leonardo 🚀</h1>
-            <p className="text-sm text-zinc-400">Preparado para dar o próximo passo na sua carreira tech?</p>
+            <h1 className="text-2xl font-bold tracking-tight">Olá, Leonardo</h1>
+            <p className="text-zinc-500 text-sm mt-0.5">Preparado para dar o próximo passo na sua carreira tech?</p>
           </div>
-          <div className="flex items-center gap-4">
-            <button className="relative p-2 text-zinc-400 hover:text-white transition-colors">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+          <div className="flex items-center gap-6">
+            <button className="relative text-zinc-400 hover:text-white transition-colors">
+              <Bell size={22} />
+              <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#050505]"></span>
             </button>
-            <div className="w-10 h-10 rounded-full border-2 border-zinc-800 bg-blue-600 flex items-center justify-center text-white font-bold">
-              L
+            <div className="flex items-center gap-3 p-1 pr-4 rounded-full bg-zinc-900/50 border border-zinc-800/50">
+              <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-bold text-white text-xs border border-zinc-700">
+                L
+              </div>
+              <ChevronRight size={14} className="text-zinc-600" />
             </div>
           </div>
         </header>
 
-        <div className="p-8 max-w-7xl mx-auto w-full">
-          {/* Métricas do Aluno */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6">
-              <div className="text-zinc-400 text-sm font-medium mb-2">Mentorias Concluídas</div>
-              <div className="text-3xl font-bold text-white">{stats.mentoriasConcluidas}</div>
-              <div className="mt-2 text-xs text-zinc-500">Horas de puro aprendizado prático</div>
+        <div className="p-10 space-y-10 max-w-[1400px] mx-auto w-full">
+          {/* Grid de Estatísticas */}
+          <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-2xl bg-[#0a0a0a] border border-zinc-800/50 shadow-sm transition-all">
+              <p className="text-zinc-500 text-sm font-medium">Mentorias Concluídas</p>
+              <h3 className="text-3xl font-bold mt-2">{stats.mentoriasConcluidas}</h3>
+              <p className="text-[11px] text-zinc-600 mt-2 uppercase tracking-wider font-bold">Horas de puro aprendizado prático</p>
             </motion.div>
             
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6">
-              <div className="text-zinc-400 text-sm font-medium mb-2">Feedbacks Técnicos</div>
-              <div className="text-3xl font-bold text-white">{stats.feedbacksRecebidos}</div>
-              <div className="mt-2 text-xs text-zinc-500">Relatórios gerados pelos mentores</div>
+            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-2xl bg-[#0a0a0a] border border-zinc-800/50 shadow-sm transition-all">
+              <p className="text-zinc-500 text-sm font-medium">Feedbacks Técnicos</p>
+              <h3 className="text-3xl font-bold mt-2">{stats.feedbacksRecebidos}</h3>
+              <p className="text-[11px] text-zinc-600 mt-2 uppercase tracking-wider font-bold">Relatórios gerados por seniores</p>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="rounded-2xl border border-blue-900/30 bg-blue-900/10 p-6">
-              <div className="text-blue-400 text-sm font-medium mb-2">Próxima Sessão</div>
-              <div className="text-xl font-bold text-white mt-1">{stats.proximaSessaoEm}</div>
-              <Link href="#proxima" className="mt-3 inline-block text-xs font-semibold text-blue-500 hover:text-blue-400">Ver detalhes &rarr;</Link>
+            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-2xl bg-[#0a0a0a] border border-blue-500/20 shadow-[0_0_30px_rgba(37,99,235,0.05)] transition-all relative overflow-hidden group">
+              <p className="text-blue-500/80 text-sm font-bold">Próxima Sessão</p>
+              <h3 className="text-xl font-bold text-white mt-2 truncate">{stats.proximaSessaoEm}</h3>
+              <Link href="#proxima" className="mt-2 text-[11px] text-zinc-400 font-bold flex items-center gap-1 group-hover:text-blue-400 transition-colors uppercase tracking-wider">
+                Ver detalhes <ArrowUpRight size={12} />
+              </Link>
             </motion.div>
-          </div>
+          </section>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             
-            {/* Coluna Principal: Próxima Sessão e Buscador */}
-            <div className="lg:col-span-2 flex flex-col gap-8">
+            {/* Coluna Principal */}
+            <div className="lg:col-span-2 space-y-8">
               
-              {/* Destaque: Próxima Mentoria */}
-              <section id="proxima" className="rounded-2xl border border-zinc-800 bg-gradient-to-br from-zinc-900/80 to-zinc-950 p-8 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 blur-[80px] rounded-full pointer-events-none"></div>
+              {/* Card Destaque: Próxima Mentoria */}
+              <section id="proxima" className="rounded-3xl border border-zinc-800/50 bg-gradient-to-br from-zinc-900/40 to-zinc-950 p-8 relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 blur-[80px] rounded-full pointer-events-none"></div>
                 
-                <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                  <span className="flex h-3 w-3 rounded-full bg-blue-500 animate-pulse"></span>
+                <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2.5">
+                  <span className="flex h-2.5 w-2.5 rounded-full bg-blue-500 animate-pulse"></span>
                   Sua Próxima Mentoria
                 </h2>
 
                 {proximasSessoes.map((sessao) => (
-                  <div key={sessao.id} className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between z-10 relative">
+                  <div key={sessao.id} className="flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between relative z-10">
                     <div className="flex items-center gap-5">
-                      <img src={sessao.mentorAvatar} alt={sessao.mentorNome} className="w-16 h-16 rounded-full border-2 border-zinc-700 object-cover" />
+                      <img src={sessao.mentorAvatar} alt={sessao.mentorNome} className="w-14 h-14 rounded-full border-2 border-zinc-800 object-cover" />
                       <div>
-                        <p className="text-sm text-zinc-400 mb-1">{sessao.dataHora}</p>
-                        <h3 className="text-xl font-bold text-white">{sessao.foco}</h3>
-                        <p className="text-sm text-blue-400 font-medium mt-1">com {sessao.mentorNome}</p>
+                        <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">{sessao.dataHora}</p>
+                        <h3 className="text-lg font-bold text-white mt-0.5">{sessao.foco}</h3>
+                        <p className="text-sm text-blue-400 font-medium mt-0.5">com {sessao.mentorNome}</p>
                       </div>
                     </div>
                     
@@ -150,38 +173,39 @@ export default function MentoradoDashboard() {
                       href={sessao.salaUrl} 
                       target="_blank" 
                       rel="noreferrer"
-                      className="w-full md:w-auto inline-flex items-center justify-center rounded-xl bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-700 hover:-translate-y-0.5"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5 text-sm font-bold shadow-lg shadow-blue-600/20 transition-all hover:scale-[1.01]"
                     >
-                      Acessar Sala (Meet)
+                      <Video size={18} />
+                      Entrar na Sala (Meet)
                     </a>
                   </div>
                 ))}
               </section>
 
-              {/* Histórico e Relatórios (Tabela 'relatorio_entrevista') */}
-              <section className="rounded-2xl border border-zinc-800 bg-zinc-900/30 overflow-hidden">
-                <div className="p-6 border-b border-zinc-800">
-                  <h2 className="text-lg font-bold text-white">Histórico de Feedbacks</h2>
-                  <p className="text-sm text-zinc-400 mt-1">Acesse os relatórios das suas sessões passadas.</p>
+              {/* Histórico e Relatórios */}
+              <section className="bg-[#0a0a0a] rounded-3xl border border-zinc-800/50 overflow-hidden shadow-2xl">
+                <div className="p-8 border-b border-zinc-800/50 bg-[#0c0c0c]">
+                  <h2 className="text-xl font-bold">Histórico de Feedbacks</h2>
+                  <p className="text-zinc-500 text-sm mt-0.5">Acesse os relatórios e vereditos das suas sessões passadas.</p>
                 </div>
 
-                <div className="flex flex-col divide-y divide-zinc-800/50">
+                <div className="divide-y divide-zinc-800/50">
                   {historicoSessoes.map((historico) => (
-                    <div key={historico.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-6 hover:bg-zinc-800/30 transition-colors gap-4">
+                    <div key={historico.id} className="p-6 flex flex-col sm:flex-row sm:items-center justify-between hover:bg-white/[0.01] transition-colors gap-4">
                       <div className="flex items-center gap-4">
-                        <img src={historico.mentorAvatar} alt={historico.mentorNome} className="w-10 h-10 rounded-full border border-zinc-700 object-cover hidden sm:block" />
+                        <img src={historico.mentorAvatar} alt={historico.mentorNome} className="w-10 h-10 rounded-full border border-zinc-800 object-cover hidden sm:block" />
                         <div>
-                          <p className="font-bold text-white text-sm">Simulado: {historico.vagaAlvo}</p>
-                          <p className="text-xs text-zinc-500 mt-1">{historico.dataHora} • Mentor: {historico.mentorNome}</p>
+                          <p className="font-bold text-white text-base">Simulado: {historico.vagaAlvo}</p>
+                          <p className="text-xs text-zinc-500 mt-1">{historico.dataHora} • Mentor: <span className="text-zinc-400 font-medium">{historico.mentorNome}</span></p>
                         </div>
                       </div>
                       
-                      <div className="flex items-center gap-4">
-                        <div className="text-right hidden sm:block">
-                          <p className="text-xs text-zinc-500">Nota Técnica</p>
-                          <p className="font-bold text-white">{historico.notaTecnica} / 10</p>
+                      <div className="flex items-center justify-between sm:justify-end gap-8 w-full sm:w-auto border-t sm:border-none border-zinc-900 pt-4 sm:pt-0">
+                        <div className="text-left sm:text-right">
+                          <p className="text-[10px] text-zinc-600 uppercase font-bold tracking-wider">Nota Técnica</p>
+                          <p className="font-bold text-white mt-0.5">{historico.notaTecnica} / 10</p>
                         </div>
-                        <button className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 hover:border-zinc-600">
+                        <button className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-2.5 text-sm font-bold text-zinc-200 transition-colors hover:bg-zinc-850 hover:text-white">
                           Ler Relatório
                         </button>
                       </div>
@@ -191,24 +215,27 @@ export default function MentoradoDashboard() {
               </section>
             </div>
 
-            {/* Coluna Lateral: Ações Rápidas e Dicas */}
-            <div className="flex flex-col gap-6">
-              <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6">
-                <h3 className="font-bold text-white mb-4">Próximo Passo</h3>
+            {/* Coluna Lateral */}
+            <div className="flex flex-col gap-6 w-full">
+              <div className="rounded-3xl border border-zinc-800/50 bg-[#0a0a0a] p-6 shadow-xl">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600/10 text-blue-500 mb-4 border border-blue-500/20">
+                  <BookOpen size={20} />
+                </div>
+                <h3 className="font-bold text-white text-lg mb-2">Próximo Passo</h3>
                 <p className="text-sm text-zinc-400 mb-6 leading-relaxed">
-                  Agende uma nova mentoria focada em arquitetura ou revisão de código para continuar evoluindo.
+                  Agende uma nova mentoria focada em arquitetura ou revisão de código para continuar evoluindo e subindo suas notas.
                 </p>
-                <Link href="/mentores" className="flex w-full items-center justify-center rounded-xl bg-white text-black px-4 py-3 text-sm font-bold transition-colors hover:bg-zinc-200">
-                  Buscar Novos Mentores
+                <Link href="/dashboard/mentorado/mentores" className="flex w-full items-center justify-center rounded-2xl bg-white text-black px-4 py-3.5 text-sm font-bold transition-all hover:bg-zinc-200 hover:scale-[1.01]">
+                  Buscar Mentores
                 </Link>
               </div>
 
-              <div className="rounded-2xl border border-zinc-800 bg-zinc-900/30 p-6">
-                <h3 className="font-bold text-white mb-4 flex items-center gap-2">
-                  <span>💡</span> Dica da Mentora Tech
+              <div className="rounded-3xl border border-zinc-800/50 bg-[#0a0a0a] p-6 shadow-xl">
+                <h3 className="font-bold text-white mb-3 flex items-center gap-2">
+                  <Lightbulb size={18} className="text-yellow-500" /> Dica da Plataforma
                 </h3>
-                <p className="text-sm text-zinc-400 leading-relaxed">
-                  Antes de uma sessão de Simulado Técnico, certifique-se de enviar o link do seu portfólio (GitHub) ou currículo atualizado para o mentor pelo menos 24 horas antes do agendamento.
+                <p className="text-sm text-zinc-500 leading-relaxed">
+                  Antes de uma sessão de Simulado Técnico, certifique-se de preencher seus links de portfólio e GitHub para que o mentor possa avaliar seu perfil antes da chamada de vídeo.
                 </p>
               </div>
             </div>
