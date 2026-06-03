@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Cookies from "js-cookie";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
+import {
   LayoutDashboard, Search, LogOut, Bell, ChevronRight,
   Star, Clock, Filter, ArrowRight, MessageSquare, Loader2, X, Calendar
 } from "lucide-react";
@@ -18,7 +18,7 @@ const CATEGORIAS = ["Todos", "Frontend", "Backend", "Mobile", "Cloud & Infra", "
 
 export default function MentoradoMentoresPage() {
   const router = useRouter();
-  
+
   // Estados da página
   const [busca, setBusca] = useState("");
   const [categoriaAtiva, setCategoriaAtiva] = useState("Todos");
@@ -70,9 +70,9 @@ export default function MentoradoMentoresPage() {
       // Puxa o ID do aluno que guardámos no localStorage durante o Login
       const userStr = localStorage.getItem("mentora_user");
       if (!userStr) throw new Error("Utilizador não encontrado. Faça login novamente.");
-      
+
       const aluno = JSON.parse(userStr);
-      
+
       // Formata a data e hora para o padrão ISO que o Prisma exige
       const dataHoraInicio = new Date(`${dataAgendamento}T${horaAgendamento}:00`).toISOString();
 
@@ -97,14 +97,14 @@ export default function MentoradoMentoresPage() {
       if (!resposta.ok) throw new Error(dados.error || "Erro ao agendar sessão.");
 
       alert("Sessão agendada com sucesso! O mentor será notificado.");
-      
+
       // Fecha o modal e limpa os campos
       setMentorSelecionado(null);
       setDataAgendamento("");
       setHoraAgendamento("");
       setVagaAlvo("");
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setErroAgendamento(error.message);
     } finally {
@@ -115,7 +115,7 @@ export default function MentoradoMentoresPage() {
   const mentoresFiltrados = mentores.filter(mentor => {
     const especialidades = mentor.perfilMentor?.especialidades || [];
     const matchBusca = mentor.nome.toLowerCase().includes(busca.toLowerCase()) || especialidades.some(esp => esp.toLowerCase().includes(busca.toLowerCase()));
-    
+
     if (categoriaAtiva === "Todos") return matchBusca;
     if (categoriaAtiva === "Frontend") return matchBusca && especialidades.some(e => e.toLowerCase().includes("react") || e.toLowerCase().includes("front"));
     if (categoriaAtiva === "Backend") return matchBusca && especialidades.some(e => e.toLowerCase().includes("node") || e.toLowerCase().includes("back") || e.toLowerCase().includes("postgres"));
@@ -129,13 +129,13 @@ export default function MentoradoMentoresPage() {
 
   return (
     <div className="flex min-h-screen bg-[#050505] text-zinc-100 font-sans relative">
-      
+
       {/* --- MODAL DE AGENDAMENTO --- */}
       <AnimatePresence>
         {mentorSelecionado && (
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setMentorSelecionado(null)} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
-            
+
             <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative w-full max-w-lg bg-[#0a0a0a] rounded-3xl border border-zinc-800 shadow-2xl overflow-hidden z-10">
               <div className="flex items-center justify-between p-6 border-b border-zinc-800/50 bg-[#0c0c0c]">
                 <h3 className="text-xl font-bold flex items-center gap-2">
@@ -227,7 +227,7 @@ export default function MentoradoMentoresPage() {
         </header>
 
         <div className="p-10 max-w-[1400px] mx-auto w-full space-y-8">
-          
+
           {/* Barra de Busca (Igual) */}
           <div className="flex flex-col lg:flex-row gap-6 justify-between items-center bg-[#0a0a0a] p-6 rounded-3xl border border-zinc-800/50 shadow-lg">
             <div className="relative w-full lg:max-w-md">
@@ -280,7 +280,7 @@ export default function MentoradoMentoresPage() {
 
                       <div className="p-4 border-t border-zinc-800/50 bg-[#0c0c0c]">
                         {/* BOTÃO QUE ABRE O MODAL */}
-                        <button 
+                        <button
                           onClick={() => setMentorSelecionado(mentor)}
                           className="w-full flex items-center justify-center gap-2 bg-white text-black hover:bg-zinc-200 px-6 py-3.5 rounded-2xl font-bold text-sm transition-all hover:scale-[1.01] active:scale-95 shadow-lg shadow-white/5"
                         >
@@ -303,7 +303,8 @@ export default function MentoradoMentoresPage() {
       </main>
 
       {/* Pequeno CSS global inline para forçar o calendário a ficar escuro */}
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         .css-color-scheme-dark::-webkit-calendar-picker-indicator {
           filter: invert(1);
           cursor: pointer;

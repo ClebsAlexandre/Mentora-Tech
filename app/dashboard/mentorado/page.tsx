@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Cookies from "js-cookie";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
+import {
   LayoutDashboard, Search, LogOut, Bell, ChevronRight,
   MessageSquare, Loader2, Calendar, Clock, Video, FileText
 } from "lucide-react";
@@ -25,12 +25,12 @@ type AgendamentoAPI = {
 
 export default function MentoradoDashboardPage() {
   const router = useRouter();
-  
+
   // Estados
   const [agendamentos, setAgendamentos] = useState<AgendamentoAPI[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [usuarioNome, setUsuarioNome] = useState("");
-  
+
   // Estado para o filtro de data específica (Padrão: data de hoje no formato YYYY-MM-DD)
   const [dataFiltro, setDataFiltro] = useState(() => {
     const hoje = new Date();
@@ -58,7 +58,7 @@ export default function MentoradoDashboardPage() {
       try {
         const url = new URL("http://localhost:3333/api/agendamentos");
         url.searchParams.append("alunoId", alunoId);
-        
+
         // Aplica o filtro da data selecionada pelo utilizador
         if (dataFiltro) {
           url.searchParams.append("data", dataFiltro);
@@ -69,7 +69,7 @@ export default function MentoradoDashboardPage() {
         });
 
         if (!resposta.ok) throw new Error("Falha ao buscar agendamentos.");
-        
+
         const dados = await resposta.json();
         setAgendamentos(dados);
       } catch (error) {
@@ -99,7 +99,7 @@ export default function MentoradoDashboardPage() {
 
   return (
     <div className="flex min-h-screen bg-[#050505] text-zinc-100 font-sans">
-      
+
       {/* Sidebar Lateral */}
       <aside className="w-72 border-r border-zinc-800/50 bg-[#0a0a0a] flex flex-col sticky top-0 h-screen hidden md:flex">
         <div className="p-8">
@@ -129,7 +129,7 @@ export default function MentoradoDashboardPage() {
         </nav>
 
         <div className="p-6 border-t border-zinc-800/50">
-          <button 
+          <button
             onClick={() => {
               Cookies.remove("mentora_tech_token");
               localStorage.removeItem("mentora_user");
@@ -165,7 +165,7 @@ export default function MentoradoDashboardPage() {
         </header>
 
         <div className="p-10 max-w-[1400px] mx-auto w-full space-y-8">
-          
+
           {/* Seção de Filtro de Data */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[#0a0a0a] p-6 rounded-3xl border border-zinc-800/50 shadow-lg">
             <div>
@@ -175,7 +175,7 @@ export default function MentoradoDashboardPage() {
               </h2>
               <p className="text-sm text-zinc-400 mt-1">Filtre os seus agendamentos por uma data específica.</p>
             </div>
-            
+
             <div className="relative">
               <input
                 type="date"
@@ -197,7 +197,7 @@ export default function MentoradoDashboardPage() {
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                   {agendamentos.map((agendamento) => {
                     const avatarFallback = agendamento.mentor.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(agendamento.mentor.nome)}&background=2563eb&color=fff`;
-                    
+
                     return (
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
@@ -256,11 +256,12 @@ export default function MentoradoDashboardPage() {
               </div>
             )}
           </div>
-          
+
         </div>
       </main>
 
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         .css-color-scheme-dark::-webkit-calendar-picker-indicator {
           filter: invert(1);
           cursor: pointer;

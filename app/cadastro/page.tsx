@@ -8,13 +8,13 @@ import { User, Mail, Lock, ArrowRight, Loader2, Briefcase, GraduationCap } from 
 
 export default function CadastroPage() {
   const router = useRouter();
-  
+
   // Estados do formulário
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [tipoPerfil, setTipoPerfil] = useState<"aluno" | "mentor">("aluno");
-  
+
   // Estados de UI
   const [isLoading, setIsLoading] = useState(false);
   const [erro, setErro] = useState("");
@@ -66,14 +66,14 @@ export default function CadastroPage() {
         </p>
       </div>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="mt-8 sm:mx-auto sm:w-full sm:max-w-md"
       >
         <div className="bg-[#0a0a0a] py-8 px-4 shadow-2xl border border-zinc-800/50 sm:rounded-3xl sm:px-10">
           <form className="space-y-6" onSubmit={handleCadastro}>
-            
+
             {erro && (
               <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-sm font-medium text-center">
                 {erro}
@@ -85,11 +85,10 @@ export default function CadastroPage() {
               <button
                 type="button"
                 onClick={() => setTipoPerfil("aluno")}
-                className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all ${
-                  tipoPerfil === "aluno" 
-                    ? "border-blue-500 bg-blue-500/10 text-blue-500" 
+                className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all ${tipoPerfil === "aluno"
+                    ? "border-blue-500 bg-blue-500/10 text-blue-500"
                     : "border-zinc-800 bg-zinc-900/50 text-zinc-400 hover:border-zinc-700 hover:text-zinc-300"
-                }`}
+                  }`}
               >
                 <GraduationCap size={24} className="mb-2" />
                 <span className="text-sm font-bold">Sou Aluno</span>
@@ -98,11 +97,10 @@ export default function CadastroPage() {
               <button
                 type="button"
                 onClick={() => setTipoPerfil("mentor")}
-                className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all ${
-                  tipoPerfil === "mentor" 
-                    ? "border-blue-500 bg-blue-500/10 text-blue-500" 
+                className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all ${tipoPerfil === "mentor"
+                    ? "border-blue-500 bg-blue-500/10 text-blue-500"
                     : "border-zinc-800 bg-zinc-900/50 text-zinc-400 hover:border-zinc-700 hover:text-zinc-300"
-                }`}
+                  }`}
               >
                 <Briefcase size={24} className="mb-2" />
                 <span className="text-sm font-bold">Sou Mentor</span>
