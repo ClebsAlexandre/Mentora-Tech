@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Cookies from "js-cookie";
-import { Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
+import { Mail, Lock, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -59,7 +59,19 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-zinc-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
+    <div className="min-h-screen bg-[#050505] text-zinc-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans relative">
+      
+      {/* Botão de Voltar ao Início */}
+      <Link 
+        href="/" 
+        className="absolute top-6 left-6 md:top-10 md:left-10 flex items-center gap-2 text-sm font-medium text-zinc-400 hover:text-white transition-colors group z-10"
+      >
+        <div className="p-2 bg-zinc-900/50 rounded-full border border-zinc-800 group-hover:bg-zinc-800 transition-colors">
+          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+        </div>
+        <span className="hidden sm:inline">Voltar ao início</span>
+      </Link>
+
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center mb-6">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 font-bold text-white text-2xl shadow-[0_0_30px_rgba(37,99,235,0.4)]">
@@ -77,7 +89,7 @@ export default function LoginPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mt-8 sm:mx-auto sm:w-full sm:max-w-md"
+        className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10"
       >
         <div className="bg-[#0a0a0a] py-8 px-4 shadow-2xl border border-zinc-800/50 sm:rounded-3xl sm:px-10">
           <form className="space-y-6" onSubmit={handleLogin}>
