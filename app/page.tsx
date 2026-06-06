@@ -1,476 +1,329 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { db } from "@/db";
-import { usuarios, perfisMentores } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X } from "lucide-react";
 
-// Força o Next.js a sempre renderizar a página dinamicamente para mostrar novos cadastros instantaneamente
-export const dynamic = "force-dynamic";
+// Tipagens
+type PerfilMentor = {
+  bio: string | null;
+  precoHora: string | number | null;
+  especialidades: string[];
+};
 
-export default async function Home() {
-  // Buscar mentores fazendo JOIN entre as tabelas usuarios e perfis_mentores
-  const mentores = await db
-    .select({
-      id: usuarios.id,
-      nome: usuarios.nome,
-      avatarUrl: usuarios.avatarUrl,
-      bio: perfisMentores.bio,
-      especialidades: perfisMentores.especialidades,
-      precoHora: perfisMentores.precoHora,
-    })
-    .from(usuarios)
-    .innerJoin(perfisMentores, eq(usuarios.id, perfisMentores.usuarioId))
-    .where(eq(usuarios.tipoPerfil, "mentor"));
+type MentorAPI = {
+  id: string;
+  nome: string;
+  avatarUrl: string | null;
+  perfilMentor: PerfilMentor | null;
+};
+
+// Variantes de Animação (Framer Motion)
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.2 }
+  }
+};
+
+export default function Home() {
+  const [mentores, setMentores] = useState<MentorAPI[]>([]);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Fetch de dados da API
+  useEffect(() => {
+    const fetchMentores = async () => {
+      try {
+        const res = await fetch("http://localhost:3333/api/mentores");
+        if (res.ok) {
+          const dados = await res.json();
+          setMentores(dados);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar mentores:", error);
+      }
+    };
+    fetchMentores();
+  }, []);
+
+  // Bloquear scroll quando o menu mobile está aberto
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+  }, [isMobileMenuOpen]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-zinc-50 dark:bg-[#0a0a0a] font-sans text-zinc-900 dark:text-zinc-50">
-      {/* Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-white/70 dark:bg-[#0a0a0a]/70 border-b border-zinc-200 dark:border-zinc-800/50">
+    <div className="flex flex-col min-h-screen bg-zinc-50 dark:bg-[#050505] font-sans text-zinc-900 dark:text-zinc-50 overflow-hidden">
+      
+      {/* Header Responsivo */}
+      <header className="fixed top-0 w-full z-50 backdrop-blur-md bg-white/80 dark:bg-[#050505]/80 border-b border-zinc-200 dark:border-zinc-800/50 transition-all">
         <div className="flex items-center justify-between px-6 py-4 max-w-7xl w-full mx-auto">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white shadow-md shadow-blue-600/20">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-3 group z-50">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 font-bold text-white shadow-[0_0_20px_rgba(37,99,235,0.3)] group-hover:scale-105 transition-transform">
               M
             </div>
-            <span className="text-xl font-bold tracking-tight">
+            <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400">
               Mentora Tech
             </span>
-          </div>
+          </Link>
+
+          {/* Nav Desktop */}
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
-            <Link
-              href="#mentores"
-              className="text-zinc-600 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            >
+            <Link href="#mentores" className="text-zinc-600 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
               Mentores
             </Link>
-            <Link
-              href="#como-funciona"
-              className="text-zinc-600 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            >
+            <Link href="#como-funciona" className="text-zinc-600 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
               Como Funciona
             </Link>
-            <Link
-              href="#beneficios"
-              className="text-zinc-600 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            >
+            <Link href="#beneficios" className="text-zinc-600 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
               Benefícios
             </Link>
           </nav>
-          <div className="flex items-center gap-4">
-            <Link
-              href="/login"
-              className="text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors hidden sm:block"
-            >
+
+          {/* Botões Desktop */}
+          <div className="hidden md:flex items-center gap-4">
+            <Link href="/login" className="text-sm font-bold text-zinc-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
               Entrar
             </Link>
-            <Link
-              href="/cadastro"
-              className="text-sm font-medium bg-blue-600 text-white px-5 py-2 rounded-full hover:bg-blue-700 transition-colors shadow-md shadow-blue-600/20 hover:shadow-lg hover:shadow-blue-600/30"
-            >
+            <Link href="/cadastro" className="text-sm font-bold bg-blue-600 text-white px-6 py-2.5 rounded-full hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40 hover:-translate-y-0.5">
               Começar
             </Link>
           </div>
+
+          {/* Botão Hamburger Mobile */}
+          <button 
+            className="md:hidden p-2 text-zinc-600 dark:text-zinc-300 z-50"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </div>
+
+        {/* Menu Mobile Fullscreen */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="absolute top-0 left-0 w-full h-screen bg-white dark:bg-[#050505] flex flex-col items-center justify-center gap-8 md:hidden px-6"
+            >
+              <Link href="#mentores" onClick={() => setIsMobileMenuOpen(false)} className="text-2xl font-bold text-zinc-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                Mentores
+              </Link>
+              <Link href="#como-funciona" onClick={() => setIsMobileMenuOpen(false)} className="text-2xl font-bold text-zinc-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                Como Funciona
+              </Link>
+              <Link href="#beneficios" onClick={() => setIsMobileMenuOpen(false)} className="text-2xl font-bold text-zinc-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                Benefícios
+              </Link>
+              <div className="w-full h-px bg-zinc-200 dark:bg-zinc-800/50 my-4" />
+              <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="w-full text-center py-4 text-lg font-bold text-zinc-900 dark:text-white border-2 border-zinc-200 dark:border-zinc-800 rounded-full">
+                Entrar na Conta
+              </Link>
+              <Link href="/cadastro" onClick={() => setIsMobileMenuOpen(false)} className="w-full text-center py-4 text-lg font-bold text-white bg-blue-600 rounded-full shadow-lg shadow-blue-600/20">
+                Criar Conta Gratuita
+              </Link>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
-      <main className="flex-1 flex flex-col items-center w-full">
+      <main className="flex-1 flex flex-col items-center w-full pt-20">
+        
         {/* Hero Section */}
-        <section className="relative flex flex-col items-center justify-center text-center px-4 sm:px-6 lg:px-8 mt-16 sm:mt-24 w-full max-w-7xl mx-auto mb-32">
-          {/* Efeito de brilho de fundo */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/10 dark:bg-blue-500/10 blur-[120px] rounded-full pointer-events-none -z-10"></div>
+        <motion.section 
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer}
+          className="relative flex flex-col items-center justify-center text-center px-6 mt-16 md:mt-32 w-full max-w-7xl mx-auto mb-20 md:mb-32"
+        >
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-blue-600/20 dark:bg-blue-500/10 blur-[80px] md:blur-[120px] rounded-full pointer-events-none -z-10"></div>
 
-          <div className="inline-flex items-center rounded-full px-4 py-1.5 text-sm font-semibold text-blue-700 bg-blue-100 dark:bg-blue-500/10 dark:text-blue-400 mb-8 ring-1 ring-inset ring-blue-600/20 transition-all hover:ring-blue-600/40 cursor-default">
-            <span className="mr-2">🚀</span> O futuro da sua carreira tech
-            começa aqui
-          </div>
+          <motion.div variants={fadeUp} className="inline-flex items-center rounded-full px-4 py-1.5 text-xs md:text-sm font-bold text-blue-700 bg-blue-100 dark:bg-blue-500/10 dark:text-blue-400 mb-8 border border-blue-600/20">
+            <span className="mr-2">🚀</span> O futuro da sua carreira tech começa aqui
+          </motion.div>
 
-          <h1 className="max-w-4xl text-5xl font-extrabold tracking-tight sm:text-7xl mb-6 bg-clip-text text-transparent bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-500 dark:from-white dark:via-zinc-200 dark:to-zinc-500">
-            Evolua sua carreira com quem{" "}
-            <span className="text-blue-600 dark:text-blue-500">
-              já chegou lá
-            </span>
-          </h1>
+          <motion.h1 variants={fadeUp} className="max-w-4xl text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-500 dark:from-white dark:via-zinc-200 dark:to-zinc-500">
+            Evolua sua carreira com quem <span className="text-blue-600 dark:text-blue-500">já chegou lá</span>
+          </motion.h1>
 
-          <p className="max-w-2xl text-lg sm:text-xl text-zinc-600 dark:text-zinc-400 mb-10 leading-relaxed">
-            Conecte-se com engenheiros seniores, tech leads e especialistas das
-            maiores empresas de tecnologia para acelerar o seu desenvolvimento
-            profissional.
-          </p>
+          <motion.p variants={fadeUp} className="max-w-2xl text-base md:text-xl text-zinc-600 dark:text-zinc-400 mb-10 leading-relaxed font-medium">
+            Conecte-se com engenheiros seniores, tech leads e especialistas das maiores empresas de tecnologia para acelerar o seu desenvolvimento.
+          </motion.p>
 
-          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <Link
-              href="#mentores"
-              className="flex items-center justify-center px-8 py-4 text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-full transition-all shadow-lg shadow-blue-600/25 hover:shadow-xl hover:shadow-blue-600/40 hover:-translate-y-0.5"
-            >
+          <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-4 sm:px-0">
+            <Link href="#mentores" className="flex items-center justify-center w-full sm:w-auto px-8 py-4 text-base font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-full transition-all shadow-lg shadow-blue-600/25 hover:-translate-y-1">
               Encontrar um Mentor
             </Link>
-            <Link
-              href="/cadastro"
-              className="flex items-center justify-center px-8 py-4 text-base font-semibold text-zinc-900 dark:text-white bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 rounded-full transition-all"
-            >
+            <Link href="/cadastro" className="flex items-center justify-center w-full sm:w-auto px-8 py-4 text-base font-bold text-zinc-900 dark:text-white bg-transparent border-2 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900 rounded-full transition-all">
               Quero ser Mentor
             </Link>
-          </div>
-        </section>
+          </motion.div>
+        </motion.section>
 
         {/* Como Funciona Section */}
-        <section
-          id="como-funciona"
-          className="w-full bg-zinc-100 dark:bg-zinc-900/50 py-24 border-y border-zinc-200 dark:border-zinc-800/50"
-        >
+        <section id="como-funciona" className="w-full bg-white dark:bg-[#0a0a0a] py-20 md:py-32 border-y border-zinc-200 dark:border-zinc-800/50">
           <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold tracking-tight mb-4">
-                Como Funciona?
-              </h2>
-              <p className="text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
-                Em apenas três passos você estará conectado com profissionais
-                que podem transformar a sua jornada no desenvolvimento de
-                software.
+            <motion.div 
+              initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp}
+              className="text-center mb-16 md:mb-20"
+            >
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-zinc-900 dark:text-white">Como Funciona?</h2>
+              <p className="text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto text-base md:text-lg">
+                Em apenas três passos você estará conectado com profissionais que podem transformar a sua jornada.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+            <motion.div 
+              initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer}
+              className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 text-center"
+            >
               {[
-                {
-                  step: "1",
-                  title: "Escolha seu Mentor",
-                  desc: "Navegue pela nossa vitrine e encontre especialistas que dominam as tecnologias e os desafios que você quer superar.",
-                },
-                {
-                  step: "2",
-                  title: "Agende uma Sessão",
-                  desc: "Selecione um horário na agenda do mentor que se encaixe perfeitamente na sua rotina.",
-                },
-                {
-                  step: "3",
-                  title: "Evolua na Prática",
-                  desc: "Tenha chamadas de vídeo focadas, receba feedback real e trace um plano de ação para a sua carreira.",
-                },
+                { step: "1", title: "Escolha seu Mentor", desc: "Navegue pela nossa vitrine e encontre especialistas que dominam as tecnologias e os desafios que você quer superar." },
+                { step: "2", title: "Agende uma Sessão", desc: "Selecione um horário na agenda do mentor que se encaixe perfeitamente na sua rotina." },
+                { step: "3", title: "Evolua na Prática", desc: "Tenha chamadas de vídeo focadas, receba feedback real e trace um plano de ação para a sua carreira." },
               ].map((item, index) => (
-                <div key={index} className="flex flex-col items-center">
-                  <div className="w-16 h-16 rounded-full bg-blue-600/10 text-blue-600 dark:text-blue-500 flex items-center justify-center text-2xl font-bold mb-6 ring-1 ring-blue-600/20">
+                <motion.div variants={fadeUp} key={index} className="flex flex-col items-center bg-zinc-50 dark:bg-[#050505] p-8 rounded-3xl border border-zinc-100 dark:border-zinc-800/50">
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-blue-600/10 text-blue-600 dark:text-blue-500 flex items-center justify-center text-2xl md:text-3xl font-black mb-6 md:mb-8 border border-blue-600/20">
                     {item.step}
                   </div>
-                  <h3 className="text-xl font-bold mb-3">{item.title}</h3>
-                  <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                  <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-zinc-900 dark:text-white">{item.title}</h3>
+                  <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed font-medium text-sm md:text-base">
                     {item.desc}
                   </p>
-                </div>
+                </motion.div>
               ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Benefícios Section */}
-        <section
-          id="beneficios"
-          className="w-full py-24 max-w-7xl mx-auto px-6"
-        >
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold tracking-tight mb-4">
-              O que você vai aprender
-            </h2>
-            <p className="text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
-              Uma mentoria bem direcionada economiza meses de estudo solitário.
-              Focamos nos pilares reais que o mercado exige.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              {
-                icon: "💻",
-                title: "Code Review",
-                desc: "Tenha seu código JavaScript, React ou Node.js revisado por olhos experientes.",
-              },
-              {
-                icon: "🎯",
-                title: "Entrevistas",
-                desc: "Simule entrevistas técnicas para vagas de Júnior ou Estágio e receba feedback imediato.",
-              },
-              {
-                icon: "🏗️",
-                title: "Arquitetura",
-                desc: "Aprenda a estruturar bancos de dados em PostgreSQL e escalar aplicações com AWS e Docker.",
-              },
-              {
-                icon: "🚀",
-                title: "Plano de Carreira",
-                desc: "Descubra o próximo passo certo, seja na sua residência atual ou em novas vagas no mercado.",
-              },
-            ].map((ben, i) => (
-              <div
-                key={i}
-                className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-blue-500/50 transition-colors text-left"
-              >
-                <div className="text-3xl mb-4">{ben.icon}</div>
-                <h3 className="font-bold text-lg mb-2">{ben.title}</h3>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  {ben.desc}
-                </p>
-              </div>
-            ))}
+            </motion.div>
           </div>
         </section>
 
         {/* Vitrine de Mentores Dinâmica */}
-        <section
-          id="mentores"
-          className="w-full bg-zinc-100 dark:bg-zinc-900/30 py-24 border-t border-zinc-200 dark:border-zinc-800/50"
-        >
+        <section id="mentores" className="w-full bg-zinc-50 dark:bg-[#0c0c0c] py-20 md:py-32 border-t border-zinc-200 dark:border-zinc-800/50">
           <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold tracking-tight mb-4">
-                Nossos Mentores
-              </h2>
-              <p className="text-zinc-600 dark:text-zinc-400">
-                Escolha o especialista perfeito para guiar o seu próximo passo
-                na carreira.
+            <motion.div 
+              initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp}
+              className="text-center mb-16 md:mb-20"
+            >
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-zinc-900 dark:text-white">Nossos Mentores</h2>
+              <p className="text-zinc-600 dark:text-zinc-400 text-base md:text-lg">
+                Escolha o especialista perfeito para guiar o seu próximo passo na carreira.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {mentores.map((mentor) => (
-                <div
-                  key={mentor.id}
-                  className="flex flex-col bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 text-left group"
-                >
-                  <div className="p-6 flex flex-col items-center text-center gap-4 flex-1">
-                    {mentor.avatarUrl && (
+            <motion.div 
+              initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+            >
+              {mentores.map((mentor) => {
+                const especialidades = mentor.perfilMentor?.especialidades || [];
+                const preco = mentor.perfilMentor?.precoHora ? Number(mentor.perfilMentor.precoHora).toFixed(2) : null;
+                const bio = mentor.perfilMentor?.bio || "Mentoria especializada em tecnologia e desenvolvimento de carreira.";
+                const avatarFallback = mentor.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(mentor.nome)}&background=2563eb&color=fff`;
+
+                return (
+                  <motion.div variants={fadeUp} key={mentor.id} className="flex flex-col bg-white dark:bg-[#0a0a0a] border border-zinc-200 dark:border-zinc-800/80 rounded-3xl overflow-hidden hover:border-blue-500/50 transition-all hover:-translate-y-1 md:hover:-translate-y-2 text-left group shadow-sm hover:shadow-xl">
+                    <div className="p-6 md:p-8 flex flex-col items-center text-center gap-4 md:gap-5 flex-1">
                       <img
-                        src={mentor.avatarUrl}
+                        src={avatarFallback}
                         alt={`Foto de ${mentor.nome}`}
-                        className="w-24 h-24 rounded-full border-4 border-zinc-50 dark:border-zinc-800 shadow-sm object-cover group-hover:border-blue-500/30 transition-colors"
+                        className="w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-zinc-50 dark:border-[#050505] shadow-lg object-cover group-hover:border-blue-500/30 transition-colors"
                       />
-                    )}
-                    <div>
-                      <h3 className="font-bold text-xl">{mentor.nome}</h3>
-                      <p className="text-blue-600 dark:text-blue-400 font-medium text-sm mt-1">
-                        {mentor.precoHora
-                          ? `R$ ${mentor.precoHora} / hora`
-                          : "Valor a combinar"}
+                      <div>
+                        <h3 className="font-bold text-xl md:text-2xl text-zinc-900 dark:text-white">{mentor.nome}</h3>
+                        <p className="text-blue-600 dark:text-blue-400 font-bold text-xs md:text-sm mt-2 inline-flex items-center px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20">
+                          {preco ? `R$ ${preco} / hora` : "Valor a combinar"}
+                        </p>
+                      </div>
+                      <p className="text-zinc-600 dark:text-zinc-400 text-sm line-clamp-3 font-medium leading-relaxed">
+                        {bio}
                       </p>
+                      <div className="flex flex-wrap gap-2 justify-center mt-auto pt-4 md:pt-6">
+                        {especialidades.slice(0, 3).map((esp, i) => (
+                          <span key={i} className="px-2 md:px-3 py-1 bg-zinc-100 dark:bg-zinc-800 text-[10px] md:text-xs rounded-lg font-bold text-zinc-700 dark:text-zinc-300">
+                            {esp}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                    <p className="text-zinc-600 dark:text-zinc-400 text-sm line-clamp-3">
-                      {mentor.bio}
-                    </p>
-                    <div className="flex flex-wrap gap-2 justify-center mt-auto pt-4">
-                      {mentor.especialidades?.map((esp, i) => (
-                        <span
-                          key={i}
-                          className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 text-xs rounded-full font-medium text-zinc-700 dark:text-zinc-300"
-                        >
-                          {esp}
-                        </span>
-                      ))}
+                    <div className="p-4 border-t border-zinc-100 dark:border-zinc-800/80 bg-zinc-50 dark:bg-[#050505]">
+                      <Link href="/cadastro" className="w-full flex items-center justify-center py-3 md:py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl transition-colors text-sm md:text-base">
+                        Agendar Sessão
+                      </Link>
                     </div>
-                  </div>
-                  <div className="p-4 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50">
-                    <button className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors">
-                      Agendar Mentoria
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
 
             {mentores.length === 0 && (
-              <div className="text-center bg-white dark:bg-zinc-900 border border-dashed border-zinc-300 dark:border-zinc-700 rounded-2xl py-12">
-                <p className="text-zinc-500">
-                  Nenhum mentor encontrado. Rode a rota de seed ou cadastre um
-                  novo!
+              <div className="text-center bg-white dark:bg-[#0a0a0a] border-2 border-dashed border-zinc-300 dark:border-zinc-800 rounded-3xl py-16 md:py-20 mx-4 md:mx-0">
+                <div className="text-4xl mb-4">🔍</div>
+                <h3 className="text-lg md:text-xl font-bold text-zinc-900 dark:text-white mb-2">Nenhum mentor disponível</h3>
+                <p className="text-zinc-500 dark:text-zinc-400 max-w-md mx-auto text-sm md:text-base px-4">
+                  Os nossos especialistas estão com a agenda cheia. Faça o seu registo para ser avisado!
                 </p>
               </div>
             )}
           </div>
         </section>
 
-        {/* CTA Section (O toque final de SaaS) */}
-        <section className="w-full bg-blue-600 dark:bg-blue-600 py-24">
-          <div className="max-w-4xl mx-auto px-6 text-center">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-              Pronto para acelerar sua carreira?
+        {/* CTA Section */}
+        <section className="w-full bg-blue-600 py-20 md:py-32 relative overflow-hidden">
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
+          <motion.div 
+            initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
+            className="max-w-4xl mx-auto px-6 text-center relative z-10"
+          >
+            <h2 className="text-3xl md:text-5xl font-black text-white mb-6 md:mb-8 tracking-tight leading-tight">
+              Pronto para acelerar a sua carreira?
             </h2>
-            <p className="text-blue-100 text-lg mb-10 max-w-2xl mx-auto leading-relaxed">
-              Junte-se a desenvolvedores que já estão evoluindo com a ajuda dos
-              nossos mentores. O próximo passo da sua jornada tech começa aqui.
+            <p className="text-blue-100 text-base md:text-xl mb-10 md:mb-12 max-w-2xl mx-auto leading-relaxed font-medium">
+              Junte-se a desenvolvedores que já estão a evoluir com a ajuda dos nossos mentores.
             </p>
-            <Link
-              href="/cadastro"
-              className="inline-flex items-center justify-center px-8 py-4 text-base font-bold text-blue-600 bg-white rounded-full transition-all shadow-lg hover:shadow-2xl hover:-translate-y-1"
-            >
-              Criar minha conta gratuita
+            <Link href="/cadastro" className="inline-flex items-center justify-center w-full sm:w-auto px-8 md:px-10 py-4 md:py-5 text-base md:text-lg font-black text-blue-600 bg-white rounded-full transition-all shadow-2xl hover:scale-105 hover:shadow-white/20 active:scale-95">
+              Criar a minha conta gratuita
             </Link>
-          </div>
+          </motion.div>
         </section>
       </main>
 
       {/* Footer Profissional */}
-      <footer className="w-full border-t border-zinc-200 dark:border-zinc-800/50 bg-white dark:bg-[#0a0a0a] pt-16 pb-8">
+      <footer className="w-full border-t border-zinc-200 dark:border-zinc-800/50 bg-white dark:bg-[#050505] pt-16 md:pt-20 pb-8 md:pb-10">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-            {/* Coluna 1: Marca e Sobre */}
-            <div className="col-span-1 md:col-span-1 lg:col-span-2">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white shadow-md shadow-blue-600/20">
-                  M
-                </div>
-                <span className="text-xl font-bold tracking-tight">
-                  Mentora Tech
-                </span>
+          <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-8 md:gap-12 mb-12 md:mb-16 text-center md:text-left">
+            <div className="flex flex-col items-center md:items-start max-w-sm">
+              <div className="flex items-center gap-3 mb-4 md:mb-6">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-white shadow-md shadow-blue-600/20">M</div>
+                <span className="text-xl md:text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Mentora Tech</span>
               </div>
-              <p className="text-zinc-600 dark:text-zinc-400 text-sm max-w-sm leading-relaxed mb-6">
-                A ponte entre o seu talento e as melhores oportunidades do
-                mercado de tecnologia. Conecte-se, aprenda e evolua com quem já
-                chegou lá.
+              <p className="text-zinc-600 dark:text-zinc-400 text-sm md:text-base leading-relaxed font-medium">
+                A ponte entre o seu talento e as melhores oportunidades do mercado de tecnologia.
               </p>
-
-              {/* Ícones de Redes Sociais */}
-              <div className="flex items-center gap-4 text-zinc-400">
-                <a
-                  href="#"
-                  className="hover:text-blue-600 dark:hover:text-blue-500 transition-colors"
-                  aria-label="GitHub"
-                >
-                  <svg
-                    className="w-5 h-5"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </a>
-                <a
-                  href="#"
-                  className="hover:text-blue-600 dark:hover:text-blue-500 transition-colors"
-                  aria-label="LinkedIn"
-                >
-                  <svg
-                    className="w-5 h-5"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </a>
-                <a
-                  href="#"
-                  className="hover:text-blue-600 dark:hover:text-blue-500 transition-colors"
-                  aria-label="Twitter"
-                >
-                  <svg
-                    className="w-5 h-5"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                  </svg>
-                </a>
-              </div>
             </div>
-
-            {/* Coluna 2: Plataforma */}
-            <div>
-              <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
-                Plataforma
-              </h3>
-              <ul className="flex flex-col gap-3 text-sm text-zinc-600 dark:text-zinc-400">
-                <li>
-                  <Link
-                    href="#mentores"
-                    className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                  >
-                    Encontrar Mentores
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#como-funciona"
-                    className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                  >
-                    Como Funciona
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/cadastro"
-                    className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                  >
-                    Quero ser Mentor
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#beneficios"
-                    className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                  >
-                    Benefícios
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* Coluna 3: Suporte & Legal */}
-            <div>
-              <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
-                Suporte
-              </h3>
-              <ul className="flex flex-col gap-3 text-sm text-zinc-600 dark:text-zinc-400">
-                <li>
-                  <Link
-                    href="/ajuda"
-                    className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                  >
-                    Central de Ajuda
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/termos"
-                    className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                  >
-                    Termos de Uso
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/privacidade"
-                    className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                  >
-                    Privacidade
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/contato"
-                    className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                  >
-                    Contato
-                  </Link>
-                </li>
-              </ul>
+            
+            <div className="flex gap-4 text-zinc-400">
+               {/* Ícones Genéricos de Redes Sociais */}
+               <div className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-colors cursor-pointer">In</div>
+               <div className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-colors cursor-pointer">Gh</div>
+               <div className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-colors cursor-pointer">Tw</div>
             </div>
           </div>
-
-          {/* Linha Inferior */}
-          <div className="pt-8 border-t border-zinc-200 dark:border-zinc-800/50 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-zinc-500 dark:text-zinc-500">
-              © {new Date().getFullYear()} Mentora Tech. Todos os direitos
-              reservados.
-            </p>
-            <div className="text-sm text-zinc-500 dark:text-zinc-500 flex items-center gap-1">
-              Feito com <span className="text-blue-500">♥</span> para
-              impulsionar a sua carreira
+          <div className="pt-8 border-t border-zinc-200 dark:border-zinc-800/50 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+            <p className="text-xs md:text-sm font-medium text-zinc-500">© {new Date().getFullYear()} Mentora Tech. Todos os direitos reservados.</p>
+            <div className="text-xs md:text-sm font-medium text-zinc-500 flex items-center gap-1">
+              Feito com <span className="text-blue-500">♥</span> para impulsionar a sua carreira
             </div>
           </div>
         </div>
