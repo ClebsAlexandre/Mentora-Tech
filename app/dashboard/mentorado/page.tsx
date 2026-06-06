@@ -6,8 +6,17 @@ import Link from "next/link";
 import Cookies from "js-cookie";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  LayoutDashboard, Search, LogOut, Bell, ChevronRight,
-  MessageSquare, Loader2, Calendar, Clock, Video, FileText
+  LayoutDashboard,
+  Search,
+  LogOut,
+  Bell,
+  ChevronRight,
+  MessageSquare,
+  Loader2,
+  Calendar,
+  Clock,
+  Video,
+  FileText,
 } from "lucide-react";
 
 // Tipagem baseada na resposta da nossa API de Agendamentos
@@ -34,7 +43,7 @@ export default function MentoradoDashboardPage() {
   // Estado para o filtro de data específica (Padrão: data de hoje no formato YYYY-MM-DD)
   const [dataFiltro, setDataFiltro] = useState(() => {
     const hoje = new Date();
-    return hoje.toISOString().split('T')[0];
+    return hoje.toISOString().split("T")[0];
   });
 
   useEffect(() => {
@@ -65,10 +74,17 @@ export default function MentoradoDashboardPage() {
         }
 
         const resposta = await fetch(url.toString(), {
-          headers: { "Authorization": `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
 
-        if (!resposta.ok) throw new Error("Falha ao buscar agendamentos.");
+        if (!resposta.ok) {
+          // Vamos tentar extrair o erro real que a API mandou
+          const erroDetalhado = await resposta.json().catch(() => ({}));
+          console.error("ERRO VINDO DA API:", erroDetalhado);
+          throw new Error(
+            erroDetalhado.error || "Falha ao buscar agendamentos na API.",
+          );
+        }
 
         const dados = await resposta.json();
         setAgendamentos(dados);
@@ -86,20 +102,25 @@ export default function MentoradoDashboardPage() {
 
   // Formatação de data e hora para exibição
   const formatarHora = (dataIso: string) => {
-    return new Date(dataIso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    return new Date(dataIso).toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'confirmado': return 'bg-green-500/10 text-green-500 border-green-500/20';
-      case 'cancelado': return 'bg-red-500/10 text-red-500 border-red-500/20';
-      default: return 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20';
+      case "confirmado":
+        return "bg-green-500/10 text-green-500 border-green-500/20";
+      case "cancelado":
+        return "bg-red-500/10 text-red-500 border-red-500/20";
+      default:
+        return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20";
     }
   };
 
   return (
     <div className="flex min-h-screen bg-[#050505] text-zinc-100 font-sans">
-
       {/* Sidebar Lateral */}
       <aside className="w-72 border-r border-zinc-800/50 bg-[#0a0a0a] flex flex-col sticky top-0 h-screen hidden md:flex">
         <div className="p-8">
@@ -114,16 +135,31 @@ export default function MentoradoDashboardPage() {
         </div>
 
         <nav className="flex-1 px-4 space-y-2">
-          <Link href="/dashboard/mentorado" className="flex items-center gap-3 rounded-xl bg-blue-600/10 text-blue-500 px-4 py-3.5 text-sm font-semibold border border-blue-500/20">
+          <Link
+            href="/dashboard/mentorado"
+            className="flex items-center gap-3 rounded-xl bg-blue-600/10 text-blue-500 px-4 py-3.5 text-sm font-semibold border border-blue-500/20"
+          >
             <LayoutDashboard size={20} />
             Meu Progresso
           </Link>
-          <Link href="/dashboard/mentorado/mentores" className="flex items-center gap-3 rounded-xl text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200 px-4 py-3.5 text-sm font-medium transition-all group">
-            <Search size={20} className="group-hover:text-blue-500 transition-colors" />
+          <Link
+            href="/dashboard/mentorado/mentores"
+            className="flex items-center gap-3 rounded-xl text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200 px-4 py-3.5 text-sm font-medium transition-all group"
+          >
+            <Search
+              size={20}
+              className="group-hover:text-blue-500 transition-colors"
+            />
             Encontrar Mentores
           </Link>
-          <Link href="/dashboard/mentorado/feedbacks" className="flex items-center gap-3 rounded-xl text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200 px-4 py-3.5 text-sm font-medium transition-all group">
-            <MessageSquare size={20} className="group-hover:text-blue-500 transition-colors" />
+          <Link
+            href="/dashboard/mentorado/feedbacks"
+            className="flex items-center gap-3 rounded-xl text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200 px-4 py-3.5 text-sm font-medium transition-all group"
+          >
+            <MessageSquare
+              size={20}
+              className="group-hover:text-blue-500 transition-colors"
+            />
             Meus Feedbacks
           </Link>
         </nav>
@@ -147,8 +183,12 @@ export default function MentoradoDashboardPage() {
       <main className="flex-1 flex flex-col h-screen overflow-y-auto">
         <header className="flex items-center justify-between px-10 py-6 border-b border-zinc-800/50 bg-[#050505]/80 backdrop-blur-md sticky top-0 z-20">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Olá, {usuarioNome.split(' ')[0]} 👋</h1>
-            <p className="text-zinc-500 text-sm mt-0.5">Acompanhe as suas sessões e evolução.</p>
+            <h1 className="text-2xl font-bold tracking-tight">
+              Olá, {usuarioNome.split(" ")[0]} 👋
+            </h1>
+            <p className="text-zinc-500 text-sm mt-0.5">
+              Acompanhe as suas sessões e evolução.
+            </p>
           </div>
           <div className="flex items-center gap-6">
             <button className="relative text-zinc-400 hover:text-white transition-colors">
@@ -165,7 +205,6 @@ export default function MentoradoDashboardPage() {
         </header>
 
         <div className="p-10 max-w-[1400px] mx-auto w-full space-y-8">
-
           {/* Seção de Filtro de Data */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[#0a0a0a] p-6 rounded-3xl border border-zinc-800/50 shadow-lg">
             <div>
@@ -173,7 +212,9 @@ export default function MentoradoDashboardPage() {
                 <Calendar size={20} className="text-blue-500" />
                 Sua Agenda
               </h2>
-              <p className="text-sm text-zinc-400 mt-1">Filtre os seus agendamentos por uma data específica.</p>
+              <p className="text-sm text-zinc-400 mt-1">
+                Filtre os seus agendamentos por uma data específica.
+              </p>
             </div>
 
             <div className="relative">
@@ -196,7 +237,9 @@ export default function MentoradoDashboardPage() {
               <AnimatePresence>
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                   {agendamentos.map((agendamento) => {
-                    const avatarFallback = agendamento.mentor.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(agendamento.mentor.nome)}&background=2563eb&color=fff`;
+                    const avatarFallback =
+                      agendamento.mentor.avatarUrl ||
+                      `https://ui-avatars.com/api/?name=${encodeURIComponent(agendamento.mentor.nome)}&background=2563eb&color=fff`;
 
                     return (
                       <motion.div
@@ -207,20 +250,32 @@ export default function MentoradoDashboardPage() {
                         className="bg-[#0a0a0a] rounded-3xl border border-zinc-800/50 p-6 hover:border-zinc-700 transition-colors group"
                       >
                         <div className="flex justify-between items-start mb-6">
-                          <div className={`px-3 py-1 rounded-full border text-xs font-bold uppercase tracking-wider ${getStatusColor(agendamento.status)}`}>
+                          <div
+                            className={`px-3 py-1 rounded-full border text-xs font-bold uppercase tracking-wider ${getStatusColor(agendamento.status)}`}
+                          >
                             {agendamento.status}
                           </div>
                           <div className="flex items-center gap-2 text-zinc-400 bg-zinc-900/50 px-3 py-1.5 rounded-lg border border-zinc-800">
                             <Clock size={16} className="text-blue-500" />
-                            <span className="text-sm font-semibold text-white">{formatarHora(agendamento.dataHoraInicio)}</span>
+                            <span className="text-sm font-semibold text-white">
+                              {formatarHora(agendamento.dataHoraInicio)}
+                            </span>
                           </div>
                         </div>
 
                         <div className="flex gap-4 items-center mb-6">
-                          <img src={avatarFallback} alt={agendamento.mentor.nome} className="w-16 h-16 rounded-2xl object-cover border-2 border-zinc-800" />
+                          <img
+                            src={avatarFallback}
+                            alt={agendamento.mentor.nome}
+                            className="w-16 h-16 rounded-2xl object-cover border-2 border-zinc-800"
+                          />
                           <div>
-                            <h3 className="text-lg font-bold text-white">{agendamento.mentor.nome}</h3>
-                            <p className="text-sm text-zinc-400">{agendamento.mentor.email}</p>
+                            <h3 className="text-lg font-bold text-white">
+                              {agendamento.mentor.nome}
+                            </h3>
+                            <p className="text-sm text-zinc-400">
+                              {agendamento.mentor.email}
+                            </p>
                           </div>
                         </div>
 
@@ -229,7 +284,9 @@ export default function MentoradoDashboardPage() {
                             <FileText size={16} />
                             <span className="font-medium">Foco da Sessão:</span>
                           </div>
-                          <p className="text-white font-semibold">{agendamento.vagaAlvo}</p>
+                          <p className="text-white font-semibold">
+                            {agendamento.vagaAlvo}
+                          </p>
                         </div>
 
                         <div className="flex gap-3">
@@ -248,25 +305,35 @@ export default function MentoradoDashboardPage() {
                 <div className="bg-zinc-900 p-4 rounded-full mb-4">
                   <Calendar size={32} className="text-zinc-600" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">Nenhum agendamento para esta data</h3>
-                <p className="text-zinc-500 max-w-md mb-6">Você não possui sessões marcadas para o dia selecionado. Experimente alterar a data ou encontre um mentor para agendar.</p>
-                <Link href="/dashboard/mentorado/mentores" className="bg-white text-black hover:bg-zinc-200 px-6 py-3 rounded-xl font-bold text-sm transition-all">
+                <h3 className="text-xl font-bold text-white mb-2">
+                  Nenhum agendamento para esta data
+                </h3>
+                <p className="text-zinc-500 max-w-md mb-6">
+                  Você não possui sessões marcadas para o dia selecionado.
+                  Experimente alterar a data ou encontre um mentor para agendar.
+                </p>
+                <Link
+                  href="/dashboard/mentorado/mentores"
+                  className="bg-white text-black hover:bg-zinc-200 px-6 py-3 rounded-xl font-bold text-sm transition-all"
+                >
                   Explorar Mentores
                 </Link>
               </div>
             )}
           </div>
-
         </div>
       </main>
 
-      <style dangerouslySetInnerHTML={{
-        __html: `
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         .css-color-scheme-dark::-webkit-calendar-picker-indicator {
           filter: invert(1);
           cursor: pointer;
         }
-      `}} />
+      `,
+        }}
+      />
     </div>
   );
 }
